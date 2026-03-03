@@ -30,17 +30,23 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
       <div className="overflow-auto">
         <table className="min-w-[1100px] w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800/60 text-xs uppercase tracking-wider text-zinc-500">
-              <th className="px-4 py-3 text-left font-medium">
+            <tr className="border-b border-zinc-800/60 text-sm uppercase tracking-wider text-zinc-400">
+              <th className="px-4 py-3 text-left font-semibold">
                 {onSort ? (
                   <button onClick={() => onSort("loja")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
                     Loja <SortIcon column="loja" sortKey={sortKey} sortDir={sortDir} />
                   </button>
                 ) : "Loja"}
               </th>
-              <th className="px-4 py-3 text-left font-medium">Cidade</th>
+              <th className="px-4 py-3 text-left font-semibold">
+                {onSort ? (
+                  <button onClick={() => onSort("cidade")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
+                    Cidade <SortIcon column="cidade" sortKey={sortKey} sortDir={sortDir} />
+                  </button>
+                ) : "Cidade"}
+              </th>
               {showUf && (
-                <th className="px-4 py-3 text-left font-medium">
+                <th className="px-4 py-3 text-left font-semibold">
                   {onSort ? (
                     <button onClick={() => onSort("uf")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
                       UF <SortIcon column="uf" sortKey={sortKey} sortDir={sortDir} />
@@ -48,10 +54,10 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                   ) : "UF"}
                 </th>
               )}
-              <th className="px-4 py-3 text-left font-medium">WhatsApp</th>
-              <th className="px-4 py-3 text-left font-medium">Email</th>
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-left font-medium">Ações</th>
+              <th className="px-4 py-3 text-left font-semibold">WhatsApp</th>
+              <th className="px-4 py-3 text-left font-semibold">Email</th>
+              <th className="px-4 py-3 text-left font-semibold">Status</th>
+              <th className="px-4 py-3 text-left font-semibold">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
