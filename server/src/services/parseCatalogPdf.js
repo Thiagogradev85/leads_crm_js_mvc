@@ -1,5 +1,7 @@
 import fs from "node:fs";
-import pdfParse from "pdf-parse";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const pdfParse = require("pdf-parse");
 
 /**
  * Parses a catalog PDF and extracts product specs.
