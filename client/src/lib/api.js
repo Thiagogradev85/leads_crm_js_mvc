@@ -49,3 +49,33 @@ export async function importExcel(file) {
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
+
+// ─── Client detail & Observations ───
+
+export async function getClient(id) {
+  const r = await fetch(`${API}/clients/${id}/detail`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function listObservations(clientId) {
+  const r = await fetch(`${API}/clients/${clientId}/observations`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function createObservation(clientId, payload) {
+  const r = await fetch(`${API}/clients/${clientId}/observations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function deleteObservation(clientId, obsId) {
+  const r = await fetch(`${API}/clients/${clientId}/observations/${obsId}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}

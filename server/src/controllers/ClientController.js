@@ -1,4 +1,5 @@
 import { ClientModel } from "../models/ClientModel.js";
+import { ObservationModel } from "../models/ObservationModel.js";
 import { importExcel } from "../services/importExcel.js";
 import fs from "node:fs";
 
@@ -52,5 +53,40 @@ export const ClientController = {
       try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (_) {}
       res.status(400).json({ error: String(e.message || e) });
     }
+  },
+
+  // ─── Observations / Follow-ups ───
+
+  getClient(req, res) {
+    const id = Number(req.params.id);
+    const client = ClientModel.get(id);
+    if (!client) return res.status(404).json({ error: "Cliente não encontrado" });
+    res.json(client);
+  },
+
+  listObservations(req, res) {
+    const clientId = Number(req.params.id);
+    const client = ClientModel.get(clientId);
+    if (!client) return res.status(404).json({ error: "Cliente não encontrado" });
+    res.json(ObservationModel.listByClient(clientId));
+  },
+
+  createObservation(req, res) {
+    const clientId = Number(req.params.id);
+    const client = ClientModel.get(clientId);
+    if (!client) return res.status(404).json({ error: "Cliente não encontrado" });
+    try {
+      const obs = ObservationModel.create(clientId, req.body || {});
+      res.json(obs);
+    } catch (e) {
+      res.status(400).json({ error: String(e.message || e) });
+    }
+  },
+
+  deleteObservation(req, res) {
+    const obsId = Number(req.params.obsId);
+    const ok = ObservationModel.delete(obsId);
+    if (!ok) return res.status(404).json({ error: "Observação não encontrada" });
+    res.json({ deleted: true });
   },
 };

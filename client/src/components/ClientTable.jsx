@@ -1,0 +1,151 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Store, MapPin, MessageCircle, Mail, Trash2, Star, ExternalLink, Hash, RefreshCw, Eye,
+} from "lucide-react";
+import { tempIcon } from "../lib/constants";
+import StatusBadge from "./StatusBadge";
+import EmptyState from "./EmptyState";
+
+export default function ClientTable({ clients, loading, uf, onStatusChange, onDelete }) {
+  const navigate = useNavigate();
+
+  return (
+    <section className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 backdrop-blur-sm overflow-hidden">
+      <div className="px-5 py-3 border-b border-zinc-800/60 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          <Hash size={14} className="text-zinc-500" />
+          <span className="text-zinc-400">{clients.length} registros</span>
+          {loading && <RefreshCw size={14} className="text-emerald-400 animate-spin ml-2" />}
+        </div>
+      </div>
+      <div className="overflow-auto">
+        <table className="min-w-[1100px] w-full text-sm">
+          <thead>
+            <tr className="border-b border-zinc-800/60 text-xs uppercase tracking-wider text-zinc-500">
+              <th className="px-4 py-3 text-left font-medium">Loja</th>
+              <th className="px-4 py-3 text-left font-medium">Cidade</th>
+              <th className="px-4 py-3 text-left font-medium">WhatsApp</th>
+              <th className="px-4 py-3 text-left font-medium">Email</th>
+              <th className="px-4 py-3 text-left font-medium">Status</th>
+              <th className="px-4 py-3 text-left font-medium">Ações</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/40">
+            {clients.map((c) => (
+              <tr
+                key={c.id}
+                className="hover:bg-zinc-800/20 transition-colors group cursor-pointer"
+                onClick={() => navigate(`/client/${c.id}`)}
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <Store size={14} className="text-zinc-400" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-zinc-200">{c.loja}</div>
+                      <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5">
+                        {c.prioridade && (
+                          <span className="flex items-center gap-0.5">
+                            <Star
+                              size={10}
+                              className={
+                                c.prioridade.toLowerCase().includes("capital")
+                                  ? "text-amber-400"
+                                  : "text-zinc-600"
+                              }
+                            />
+                            {c.prioridade}
+                          </span>
+                        )}
+                        {c.temperatura && (
+                          <span className="flex items-center gap-0.5">
+                            {tempIcon(c.temperatura)}
+                            {c.temperatura}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1.5 text-zinc-300">
+                    <MapPin size={13} className="text-zinc-600" />
+                    {c.cidade || <span className="text-zinc-600">—</span>}
+                  </div>
+                </td>
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  {c.whatsapp ? (
+                    <a
+                      className="flex items-center gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
+                      href={`https://wa.me/55${String(c.whatsapp).replace(/\D/g, "")}`}
+                      target="_blank"
+                    >
+                      <MessageCircle size={14} />
+                      <span>{c.whatsapp}</span>
+                      <ExternalLink
+                        size={11}
+                        className="text-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
+                    </a>
+                  ) : (
+                    <span className="text-zinc-600 flex items-center gap-1.5">
+                      <MessageCircle size={14} className="text-zinc-700" /> —
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  {c.email ? (
+                    <a
+                      href={`mailto:${c.email}`}
+                      className="flex items-center gap-1.5 text-zinc-300 hover:text-sky-300 transition-colors"
+                    >
+                      <Mail size={13} className="text-zinc-500" />
+                      <span className="truncate max-w-[180px]">{c.email}</span>
+                    </a>
+                  ) : (
+                    <span className="text-zinc-600 flex items-center gap-1.5">
+                      <Mail size={13} className="text-zinc-700" /> —
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <StatusBadge status={c.status} onChange={(val) => onStatusChange(c.id, val)} />
+                </td>
+                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/client/${c.id}`)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 transition-all opacity-50 group-hover:opacity-100"
+                    >
+                      <Eye size={13} />
+                      <span>Ver</span>
+                    </button>
+                    <button
+                      onClick={() => onDelete(c.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all opacity-50 group-hover:opacity-100"
+                    >
+                      <Trash2 size={13} />
+                      <span>Deletar</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {!clients.length && (
+              <tr>
+                <td className="px-4 py-12 text-center" colSpan={6}>
+                  <EmptyState
+                    title={`Nenhum lead encontrado para ${uf}`}
+                    subtitle="Importe um Excel ou adicione manualmente"
+                  />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}

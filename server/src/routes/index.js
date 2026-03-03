@@ -25,4 +25,10 @@ router.put("/clients/:id", ClientController.update);
 router.delete("/clients/:id", ClientController.delete);
 router.post("/import", upload.single("file"), ClientController.import);
 
+// Client detail + observations
+router.get("/clients/:id/detail", ClientController.getClient);
+router.get("/clients/:id/observations", ClientController.listObservations);
+router.post("/clients/:id/observations", ClientController.createObservation);
+router.delete("/clients/:id/observations/:obsId", ClientController.deleteObservation);
+
 export default router;

@@ -29,3 +29,12 @@ CREATE TABLE IF NOT EXISTS events (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS observations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL,
+  type TEXT NOT NULL DEFAULT 'observacao',
+  content TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
+);
