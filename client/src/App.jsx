@@ -4,6 +4,7 @@ import { getStates, importExcel } from "./lib/api.js";
 import Sidebar from "./components/Sidebar";
 import ClientsPage from "./pages/ClientsPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
+import AllLeadsPage from "./pages/AllLeadsPage";
 
 export default function App() {
   const [states, setStates] = useState([]);
@@ -39,6 +40,10 @@ export default function App() {
           <Route
             path="/"
             element={<ClientsPage uf={uf} onRefreshStates={refreshStates} />}
+          />
+          <Route
+            path="/all-leads"
+            element={<AllLeadsPage onRefreshStates={refreshStates} />}
           />
           <Route
             path="/client/:id"

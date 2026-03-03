@@ -7,7 +7,7 @@ import { tempIcon } from "../lib/constants";
 import StatusBadge from "./StatusBadge";
 import EmptyState from "./EmptyState";
 
-export default function ClientTable({ clients, loading, uf, onStatusChange, onDelete }) {
+export default function ClientTable({ clients, loading, uf, showUf, onStatusChange, onDelete }) {
   const navigate = useNavigate();
 
   return (
@@ -25,6 +25,7 @@ export default function ClientTable({ clients, loading, uf, onStatusChange, onDe
             <tr className="border-b border-zinc-800/60 text-xs uppercase tracking-wider text-zinc-500">
               <th className="px-4 py-3 text-left font-medium">Loja</th>
               <th className="px-4 py-3 text-left font-medium">Cidade</th>
+              {showUf && <th className="px-4 py-3 text-left font-medium">UF</th>}
               <th className="px-4 py-3 text-left font-medium">WhatsApp</th>
               <th className="px-4 py-3 text-left font-medium">Email</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
@@ -75,6 +76,13 @@ export default function ClientTable({ clients, loading, uf, onStatusChange, onDe
                     {c.cidade || <span className="text-zinc-600">—</span>}
                   </div>
                 </td>
+                {showUf && (
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 text-xs font-medium">
+                      {c.uf}
+                    </span>
+                  </td>
+                )}
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   {c.whatsapp ? (
                     <a
@@ -135,7 +143,7 @@ export default function ClientTable({ clients, loading, uf, onStatusChange, onDe
             ))}
             {!clients.length && (
               <tr>
-                <td className="px-4 py-12 text-center" colSpan={6}>
+                <td className="px-4 py-12 text-center" colSpan={showUf ? 7 : 6}>
                   <EmptyState
                     title={`Nenhum lead encontrado para ${uf}`}
                     subtitle="Importe um Excel ou adicione manualmente"
