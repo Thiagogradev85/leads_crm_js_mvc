@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Search, Filter, ChevronDown, Users } from "lucide-react";
 import { listClients, updateClient, deleteClient } from "../lib/api";
 import { STATUS } from "../lib/constants";
@@ -9,6 +9,28 @@ export default function AllLeadsPage({ onRefreshStates }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sortKey, setSortKey] = useState("uf");   // "uf" | "loja"
+  const [sortDir, setSortDir] = useState("asc");  // "asc" | "desc"
+
+  function toggleSort(key) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  const sorted = useMemo(() => {
+    const copy = [...clients];
+    copy.sort((a, b) => {
+      const va = (a[sortKey] || "").toLowerCase();
+      const vb = (b[sortKey] || "").toLowerCase();
+      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return copy;
+  }, [clients, sortKey, sortDir]);
 
   async function refreshClients() {
     setLoading(true);
@@ -51,7 +73,7 @@ export default function AllLeadsPage({ onRefreshStates }) {
                   · {currentCount} {currentCount === 1 ? "lead" : "leads"}
                 </span>
               </div>
-              <div className="text-xs text-zinc-500">Todos os estados · Ordenação: WhatsApp → Capital → Data</div>
+              <div className="text-xs text-zinc-500">Todos os estados · Clique em Loja ou UF para ordenar</div>
             </div>
           </div>
 
@@ -93,10 +115,13 @@ export default function AllLeadsPage({ onRefreshStates }) {
       {/* Content */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         <ClientTable
-          clients={clients}
+          clients={sorted}
           loading={loading}
           uf="TODOS"
           showUf
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={toggleSort}
           onStatusChange={onStatusChange}
           onDelete={onDelete}
         />

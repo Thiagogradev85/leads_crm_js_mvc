@@ -2,12 +2,20 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Store, MapPin, MessageCircle, Mail, Trash2, Star, ExternalLink, Hash, RefreshCw, Eye,
+  ArrowUp, ArrowDown, ArrowUpDown,
 } from "lucide-react";
 import { tempIcon } from "../lib/constants";
 import StatusBadge from "./StatusBadge";
 import EmptyState from "./EmptyState";
 
-export default function ClientTable({ clients, loading, uf, showUf, onStatusChange, onDelete }) {
+function SortIcon({ column, sortKey, sortDir }) {
+  if (sortKey !== column) return <ArrowUpDown size={12} className="text-zinc-600" />;
+  return sortDir === "asc"
+    ? <ArrowUp size={12} className="text-emerald-400" />
+    : <ArrowDown size={12} className="text-emerald-400" />;
+}
+
+export default function ClientTable({ clients, loading, uf, showUf, sortKey, sortDir, onSort, onStatusChange, onDelete }) {
   const navigate = useNavigate();
 
   return (
@@ -23,9 +31,23 @@ export default function ClientTable({ clients, loading, uf, showUf, onStatusChan
         <table className="min-w-[1100px] w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800/60 text-xs uppercase tracking-wider text-zinc-500">
-              <th className="px-4 py-3 text-left font-medium">Loja</th>
+              <th className="px-4 py-3 text-left font-medium">
+                {onSort ? (
+                  <button onClick={() => onSort("loja")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
+                    Loja <SortIcon column="loja" sortKey={sortKey} sortDir={sortDir} />
+                  </button>
+                ) : "Loja"}
+              </th>
               <th className="px-4 py-3 text-left font-medium">Cidade</th>
-              {showUf && <th className="px-4 py-3 text-left font-medium">UF</th>}
+              {showUf && (
+                <th className="px-4 py-3 text-left font-medium">
+                  {onSort ? (
+                    <button onClick={() => onSort("uf")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
+                      UF <SortIcon column="uf" sortKey={sortKey} sortDir={sortDir} />
+                    </button>
+                  ) : "UF"}
+                </th>
+              )}
               <th className="px-4 py-3 text-left font-medium">WhatsApp</th>
               <th className="px-4 py-3 text-left font-medium">Email</th>
               <th className="px-4 py-3 text-left font-medium">Status</th>
