@@ -40,9 +40,9 @@ export default function App() {
   });
 
   async function refreshStates() {
-    const st = await getStates();
+    const st = await getStates(); // [{ uf, count }]
     setStates(st);
-    if (!uf && st.length) setUf(st[0]);
+    if (!uf && st.length) setUf(st[0].uf);
   }
 
   async function refreshClients() {
@@ -60,7 +60,7 @@ export default function App() {
     await importExcel(file);
     await refreshStates();
     await refreshClients();
-    alert("Importado! (dedup por Loja+Cidade+UF)");
+    alert("Importação concluída! Duplicatas são detectadas por Loja+Cidade+UF.");
   }
 
   async function onSave() {
@@ -91,20 +91,24 @@ export default function App() {
 
         <div className="mt-6">
           <div className="text-xs uppercase tracking-wider text-zinc-500 mb-2">Estados (UF)</div>
-          <div className="space-y-1 max-h-[320px] overflow-auto pr-1">
+          <div className="space-y-1 max-h-[420px] overflow-auto pr-1">
             {states.map((s) => (
               <button
-                key={s}
-                onClick={() => setUf(s)}
+                key={s.uf}
+                onClick={() => setUf(s.uf)}
                 className={
-                  "w-full text-left px-3 py-2 rounded-lg border " +
-                  (uf === s ? "bg-zinc-900 border-zinc-700" : "bg-zinc-950 border-zinc-900 hover:bg-zinc-900/60 hover:border-zinc-800")
+                  "w-full text-left px-3 py-2 rounded-lg border flex justify-between items-center " +
+                  (uf === s.uf
+                    ? "bg-zinc-900 border-zinc-700"
+                    : s.count > 0
+                      ? "bg-zinc-950 border-zinc-900 hover:bg-zinc-900/60 hover:border-zinc-800"
+                      : "bg-zinc-950/50 border-zinc-900/50 hover:bg-zinc-900/40 text-zinc-500")
                 }
               >
-                {s}
+                <span>{s.uf}</span>
+                <span className={"text-xs " + (s.count > 0 ? "text-emerald-400" : "text-zinc-600")}>{s.count}</span>
               </button>
             ))}
-            {!states.length && <div className="text-zinc-500 text-sm">Importe um Excel para começar.</div>}
           </div>
         </div>
 

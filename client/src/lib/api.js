@@ -3,7 +3,7 @@ const API = "http://localhost:8000";
 export async function getStates() {
   const r = await fetch(`${API}/states`);
   if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  return r.json(); // retorna [{ uf, count }]
 }
 
 export async function listClients({ uf, status, q }) {

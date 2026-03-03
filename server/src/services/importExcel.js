@@ -47,15 +47,14 @@ export function importExcel(filePath) {
       if (!payload.loja || !payload.uf) continue;
       if (!STATUSES.has(payload.status)) payload.status = "enviado";
 
-      // Determine if update vs insert by checking unique key indirectly
-      // We use upsert and compare before/after by trying to find existing quickly is costly;
-      // so approximate counts: if upsert returns an existing row? We can't know cheaply without extra query.
-      // We'll do an existence check here.
-      const existed = false; // keep simple counts
-      ClientModel.upsertByKey(payload);
-      if (existed) updated += 1;
-      else imported += 1;
+      // Upsert retorna _existed: true se atualizou, false se inseriu
+      const result = ClientModel.upsertByKey(payload);
+      if (result._existed) {
+        updated += 1;
+      } else {
+        imported += 1;
+      }
     }
   }
-  return { imported, updated };
+  return { imported, updated, duplicates: updated };
 }
