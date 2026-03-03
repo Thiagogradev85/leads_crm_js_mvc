@@ -13,7 +13,7 @@ const EMPTY_FORM = {
   email: "",
   fonte: "",
   temperatura: "Morno",
-  status: "enviado",
+  status: "prospeccao",
 };
 
 export default function ClientForm({ onSave, initialData }) {

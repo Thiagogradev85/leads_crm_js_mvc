@@ -1,13 +1,18 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { MapPin, Users, Globe, UploadCloud, FileSpreadsheet } from "lucide-react";
 
 export default function Sidebar({ states, uf, onSelectUf, onImport }) {
+  const navigate = useNavigate();
   const totalClients = states.reduce((acc, s) => acc + s.count, 0);
 
   return (
     <aside className="w-72 border-r border-zinc-800/80 flex flex-col bg-zinc-950/80 backdrop-blur-sm">
       {/* Logo */}
-      <div className="p-5 border-b border-zinc-800/80">
+      <div
+        className="p-5 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors"
+        onClick={() => navigate("/")}
+      >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
             <Users size={20} className="text-white" />

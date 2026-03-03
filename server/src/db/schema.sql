@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS clients (
   email TEXT DEFAULT '',
   fonte TEXT DEFAULT '',
   temperatura TEXT DEFAULT '',
-  status TEXT NOT NULL DEFAULT 'enviado',
+  status TEXT NOT NULL DEFAULT 'prospeccao',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

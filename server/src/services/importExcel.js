@@ -1,7 +1,7 @@
 import XLSX from "xlsx";
 import { ClientModel } from "../models/ClientModel.js";
 
-const STATUSES = new Set(["enviado", "respondeu", "nao_interessa", "pediu_catalogo"]);
+const STATUSES = new Set(["prospeccao", "enviado", "respondeu", "nao_interessa", "pediu_catalogo"]);
 
 function norm(v) {
   if (v === null || v === undefined) return "";
@@ -30,7 +30,7 @@ export function importExcel(filePath) {
         email: r["Email"] || r["E-mail"] || "",
         fonte: r["Fonte"] || "",
         temperatura: r["Temperatura (A+B)"] || r["Temperatura"] || "",
-        status: r["Status"] || "enviado",
+        status: r["Status"] || "prospeccao",
       };
 
       payload.loja = norm(payload.loja);
@@ -45,7 +45,7 @@ export function importExcel(filePath) {
       payload.temperatura = norm(payload.temperatura);
 
       if (!payload.loja || !payload.uf) continue;
-      if (!STATUSES.has(payload.status)) payload.status = "enviado";
+      if (!STATUSES.has(payload.status)) payload.status = "prospeccao";
 
       // Upsert retorna _existed: true se atualizou, false se inseriu
       const result = ClientModel.upsertByKey(payload);

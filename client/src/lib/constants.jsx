@@ -7,6 +7,7 @@ import React from "react";
 // ─── Status options ───
 export const STATUS = [
   { value: "", label: "Todos", icon: Filter },
+  { value: "prospeccao", label: "Prospecção", icon: MessageCircle },
   { value: "enviado", label: "Enviado", icon: MessageCircle },
   { value: "respondeu", label: "Respondeu", icon: MessageCircle },
   { value: "nao_interessa", label: "Não interessa", icon: MessageCircle },
@@ -16,6 +17,10 @@ export const STATUS = [
 // ─── Status pill CSS classes ───
 export function statusPill(status) {
   switch (status) {
+    case "prospeccao":
+      return "bg-violet-500/15 text-violet-300 border-violet-500/30 shadow-violet-500/5";
+    case "enviado":
+      return "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/5";
     case "respondeu":
       return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/5";
     case "nao_interessa":

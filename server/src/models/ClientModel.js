@@ -76,7 +76,7 @@ export const ClientModel = {
       email: payload.email ?? "",
       fonte: payload.fonte ?? "",
       temperatura: payload.temperatura ?? "",
-      status: payload.status ?? "enviado",
+      status: payload.status ?? "prospeccao",
       updated_at: nowIso(),
     };
 
