@@ -38,3 +38,35 @@ CREATE TABLE IF NOT EXISTS observations (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS catalogs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome TEXT NOT NULL,
+  mes_referencia TEXT NOT NULL,
+  data_termino TEXT DEFAULT '',
+  ativo INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS catalog_products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  catalog_id INTEGER NOT NULL,
+  tipo TEXT NOT NULL DEFAULT 'scooter',
+  modelo TEXT NOT NULL,
+  nome TEXT DEFAULT '',
+  bateria TEXT DEFAULT '',
+  motor TEXT DEFAULT '',
+  pneus TEXT DEFAULT '',
+  velocidade TEXT DEFAULT '',
+  autonomia TEXT DEFAULT '',
+  tempo_carga TEXT DEFAULT '',
+  carregador TEXT DEFAULT '',
+  impermeabilidade TEXT DEFAULT '',
+  peso TEXT DEFAULT '',
+  estoque INTEGER NOT NULL DEFAULT 0,
+  extras TEXT DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (catalog_id) REFERENCES catalogs(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_catalog_produto ON catalog_products (catalog_id, lower(modelo));

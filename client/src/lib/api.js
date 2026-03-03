@@ -79,3 +79,93 @@ export async function deleteObservation(clientId, obsId) {
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
+
+// ─── Catalog ───
+
+export async function listCatalogs() {
+  const r = await fetch(`${API}/catalogs`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function getCatalog(id) {
+  const r = await fetch(`${API}/catalogs/${id}`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function createCatalog(payload) {
+  const r = await fetch(`${API}/catalogs`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function updateCatalog(id, payload) {
+  const r = await fetch(`${API}/catalogs/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function closeCatalog(id) {
+  const r = await fetch(`${API}/catalogs/${id}/close`, { method: "POST" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function deleteCatalog(id) {
+  const r = await fetch(`${API}/catalogs/${id}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function addProduct(catalogId, payload) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function updateProduct(catalogId, prodId, payload) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function deleteProduct(catalogId, prodId) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function updateStock(catalogId, prodId, estoque) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}/stock`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ estoque }),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function importCatalogPdf(catalogId, file) {
+  const form = new FormData();
+  form.append("file", file);
+  const r = await fetch(`${API}/catalogs/${catalogId}/import-pdf`, { method: "POST", body: form });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}

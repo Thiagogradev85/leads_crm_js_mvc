@@ -4,6 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { ClientController } from "../controllers/ClientController.js";
+import { CatalogController } from "../controllers/CatalogController.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,5 +31,23 @@ router.get("/clients/:id/detail", ClientController.getClient);
 router.get("/clients/:id/observations", ClientController.listObservations);
 router.post("/clients/:id/observations", ClientController.createObservation);
 router.delete("/clients/:id/observations/:obsId", ClientController.deleteObservation);
+
+// ─── Catalog (MVC) ───
+router.get("/catalogs", CatalogController.listCatalogs);
+router.post("/catalogs", CatalogController.createCatalog);
+router.get("/catalogs/:id", CatalogController.getCatalog);
+router.put("/catalogs/:id", CatalogController.updateCatalog);
+router.post("/catalogs/:id/close", CatalogController.closeCatalog);
+router.delete("/catalogs/:id", CatalogController.deleteCatalog);
+
+// Catalog products
+router.get("/catalogs/:id/products", CatalogController.listProducts);
+router.post("/catalogs/:id/products", CatalogController.addProduct);
+router.put("/catalogs/:id/products/:prodId", CatalogController.updateProduct);
+router.delete("/catalogs/:id/products/:prodId", CatalogController.deleteProduct);
+router.put("/catalogs/:id/products/:prodId/stock", CatalogController.updateStock);
+
+// PDF import into catalog
+router.post("/catalogs/:id/import-pdf", upload.single("file"), CatalogController.importPdf);
 
 export default router;

@@ -5,6 +5,8 @@ import Sidebar from "./components/Sidebar";
 import ClientsPage from "./pages/ClientsPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
 import AllLeadsPage from "./pages/AllLeadsPage";
+import CatalogPage from "./pages/CatalogPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 export default function App() {
   const [states, setStates] = useState([]);
@@ -48,6 +50,11 @@ export default function App() {
           <Route
             path="/client/:id"
             element={<ClientDetailPage onRefreshStates={refreshStates} />}
+          />
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route
+            path="/catalog/:catalogId/product/:prodId"
+            element={<ProductDetailPage />}
           />
         </Routes>
       </main>

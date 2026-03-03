@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Users, Globe, UploadCloud, FileSpreadsheet } from "lucide-react";
+import { MapPin, Users, Globe, UploadCloud, FileSpreadsheet, BookOpen } from "lucide-react";
 
 export default function Sidebar({ states, uf, onSelectUf, onImport }) {
   const navigate = useNavigate();
@@ -32,6 +32,17 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-500 group-hover:text-emerald-300 transition-colors">Total de leads</span>
           <span className="text-emerald-400 font-semibold">{totalClients}</span>
+        </div>
+      </div>
+
+      {/* Catalog link */}
+      <div
+        className="px-5 py-3 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors group"
+        onClick={() => navigate("/catalog")}
+      >
+        <div className="flex items-center gap-2 text-xs">
+          <BookOpen size={14} className="text-amber-500 group-hover:text-amber-400 transition-colors" />
+          <span className="text-zinc-500 group-hover:text-amber-300 transition-colors font-medium">Catálogo de Produtos</span>
         </div>
       </div>
 
