@@ -4,3 +4,6 @@ dist/
 *.log
 server/data/tmp/*
 !server/data/tmp/.gitkeep
+server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
