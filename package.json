@@ -10,8 +10,9 @@
     "dev": "concurrently -k \"bun --cwd server dev\" \"bun --cwd client dev\"",
     "dev:server": "bun --cwd server dev",
     "dev:client": "bun --cwd client dev",
-    "start": "bun --cwd server start",
-    "build": "bun --cwd client build"
+    "start": "node server/src/index.js",
+    "build": "cd client && npm install && npm run build",
+    "render-build": "npm install && cd client && npm install && npm run build && cd ../server && npm install"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

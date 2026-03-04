@@ -1,4 +1,6 @@
-const API = "http://localhost:8000";
+// Em produção, frontend e backend são servidos pelo mesmo servidor
+// Em dev, aponta para localhost:8000
+const API = import.meta.env.VITE_API_URL || "";
 
 export async function getStates() {
   const r = await fetch(`${API}/states`);
