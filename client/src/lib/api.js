@@ -30,14 +30,17 @@ export async function getStates() {
   return r.json(); // retorna [{ uf, count }]
 }
 
-export async function listClients({ uf, status, q }) {
+// Supports pagination: pass { uf, status, q, page, pageSize }
+export async function listClients({ uf, status, q, page = 1, pageSize = 20 } = {}) {
   const params = new URLSearchParams();
   if (uf) params.set("uf", uf);
   if (status) params.set("status", status);
   if (q) params.set("q", q);
+  if (page) params.set("page", page);
+  if (pageSize) params.set("pageSize", pageSize);
   const r = await fetch(`${API}/clients?${params.toString()}`);
   if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  return r.json(); // { rows, total, page, pageSize }
 }
 
 export async function upsertClient(payload) {

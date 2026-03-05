@@ -1,7 +1,3 @@
-// Catalog product follow-ups
-router.get("/catalogs/:id/products/:prodId/followups", CatalogController.listProductFollowups);
-router.post("/catalogs/:id/products/:prodId/followups", CatalogController.addProductFollowup);
-router.delete("/catalogs/:id/products/:prodId/followups/:fuId", CatalogController.deleteProductFollowup);
 import express from "express";
 import multer from "multer";
 import path from "node:path";
@@ -14,6 +10,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+// Catalog product follow-ups
+router.get("/catalogs/:id/products/:prodId/followups", CatalogController.listProductFollowups);
+router.post("/catalogs/:id/products/:prodId/followups", CatalogController.addProductFollowup);
+router.delete("/catalogs/:id/products/:prodId/followups/:fuId", CatalogController.deleteProductFollowup);
 
 // Garante que a pasta de uploads existe
 const uploadDir = path.resolve(__dirname, "../../data/tmp");

@@ -1,3 +1,8 @@
+import { CatalogModel } from "../models/CatalogModel.js";
+import { parseCatalogPdf } from "../services/parseCatalogPdf.js";
+import fs from "node:fs";
+
+export const CatalogController = {
   // ─── Product Follow-ups ───
   listProductFollowups(req, res) {
     const prodId = Number(req.params.prodId);
@@ -17,11 +22,6 @@
     if (!ok) return res.status(404).json({ error: "Follow-up não encontrado" });
     res.json({ deleted: true });
   },
-import { CatalogModel } from "../models/CatalogModel.js";
-import { parseCatalogPdf } from "../services/parseCatalogPdf.js";
-import fs from "node:fs";
-
-export const CatalogController = {
   // ─── Catalogs ───
 
   listCatalogs(req, res) {

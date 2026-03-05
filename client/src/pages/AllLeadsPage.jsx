@@ -1,11 +1,14 @@
+
 import React, { useEffect, useState, useMemo } from "react";
 import { Search, Filter, ChevronDown, Users, MapPin, Store, Building2 } from "lucide-react";
 import { listClients, updateClient, deleteClient } from "../lib/api";
 import { STATUS } from "../lib/constants";
 import ClientTable from "../components/ClientTable";
 
+
 export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [clients, setClients] = useState([]);
+  const [total, setTotal] = useState(0);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [filterUf, setFilterUf] = useState(propUf || "");
@@ -14,6 +17,9 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [loading, setLoading] = useState(false);
   const [sortKey, setSortKey] = useState("uf");      // "uf" | "loja" | "cidade"
   const [sortDir, setSortDir] = useState("asc");     // "asc" | "desc"
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
 
   function toggleSort(key) {
     if (sortKey === key) {
@@ -22,44 +28,55 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
       setSortKey(key);
       setSortDir("asc");
     }
+    setPage(1); // Reset to first page on sort change
   }
 
-  const sorted = useMemo(() => {
-    let rows = [...clients];
-    // apply local filters
-    if (filterUf) rows = rows.filter((c) => c.uf === filterUf);
-    if (filterLoja) rows = rows.filter((c) => c.loja === filterLoja);
-    if (filterCidade) rows = rows.filter((c) => c.cidade === filterCidade);
-    // sort
-    rows.sort((a, b) => {
-      const va = (a[sortKey] || "").toLowerCase();
-      const vb = (b[sortKey] || "").toLowerCase();
-      const cmp = va < vb ? -1 : va > vb ? 1 : 0;
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-    return rows;
-  }, [clients, sortKey, sortDir, filterUf, filterLoja, filterCidade]);
 
-  // unique values for filter dropdowns
+  // Unique values for filter dropdowns (from current page only)
   const uniqueUfs = useMemo(() => [...new Set(clients.map((c) => c.uf).filter(Boolean))].sort(), [clients]);
   const uniqueLojas = useMemo(() => [...new Set(clients.map((c) => c.loja).filter(Boolean))].sort(), [clients]);
   const uniqueCidades = useMemo(() => [...new Set(clients.map((c) => c.cidade).filter(Boolean))].sort(), [clients]);
 
+  // unique values for filter dropdowns
+  // (mantido apenas uma vez, removendo duplicidade)
+  const uniqueUfs = useMemo(() => [...new Set(clients.map((c) => c.uf).filter(Boolean))].sort(), [clients]);
+  const uniqueLojas = useMemo(() => [...new Set(clients.map((c) => c.loja).filter(Boolean))].sort(), [clients]);
+  const uniqueCidades = useMemo(() => [...new Set(clients.map((c) => c.cidade).filter(Boolean))].sort(), [clients]);
+
+
   async function refreshClients() {
     setLoading(true);
-    const rows = await listClients({ uf: "", status, q });
+    // Always send all filters to backend
+    const { rows, total: totalCount, page: currentPage, pageSize: currentPageSize } = await listClients({
+      uf: filterUf,
+      status,
+      q,
+      page,
+      pageSize,
+      sortKey,
+      sortDir,
+      loja: filterLoja,
+      cidade: filterCidade,
+    });
     setClients(rows);
+    setTotal(totalCount);
+    setPage(currentPage || 1);
+    setPageSize(currentPageSize || 20);
     setLoading(false);
   }
 
+
   useEffect(() => {
     refreshClients().catch(console.error);
-  }, [status, q]);
+    // eslint-disable-next-line
+  }, [status, q, filterUf, filterLoja, filterCidade, page, pageSize, sortKey, sortDir]);
+
 
   // Atualiza filtro de UF quando propUf muda (ex: ao clicar na Sidebar)
   useEffect(() => {
     if (propUf !== undefined) setFilterUf(propUf);
   }, [propUf]);
+
 
   async function onDelete(id) {
     if (!confirm("Tem certeza que deseja deletar este cliente?")) return;
@@ -68,12 +85,19 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     await refreshClients();
   }
 
+
   async function onStatusChange(id, value) {
     await updateClient(id, { status: value });
     await refreshClients();
   }
 
-  const currentCount = sorted.length;
+
+  // Pagination controls
+  const totalPages = Math.ceil(total / pageSize);
+  function goToPage(p) {
+    if (p < 1 || p > totalPages) return;
+    setPage(p);
+  }
 
   return (
     <>
@@ -89,7 +113,7 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
                 <div className="text-xl font-semibold flex items-center gap-2">
                   Todos os Leads
                   <span className="text-sm font-normal text-zinc-500">
-                    · {currentCount} {currentCount === 1 ? "lead" : "leads"}
+                    · {total} {total === 1 ? "lead" : "leads"}
                   </span>
                 </div>
                 <div className="text-xs text-zinc-500">Clique nos cabeçalhos para ordenar</div>
@@ -188,10 +212,11 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
         </div>
       </header>
 
+
       {/* Content */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         <ClientTable
-          clients={sorted}
+          clients={clients}
           loading={loading}
           uf="TODOS"
           showUf
@@ -201,6 +226,28 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
           onStatusChange={onStatusChange}
           onDelete={onDelete}
         />
+
+        {/* Pagination Controls */}
+        <div className="flex justify-center items-center gap-2 mt-6">
+          <button
+            className="px-3 py-1 rounded border border-zinc-700 bg-zinc-800 text-zinc-300 disabled:opacity-50"
+            onClick={() => goToPage(page - 1)}
+            disabled={page <= 1}
+          >Anterior</button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).slice(Math.max(0, page - 3), Math.min(totalPages, page + 2)).map((p) => (
+            <button
+              key={p}
+              className={`px-3 py-1 rounded border ${p === page ? 'border-emerald-500 bg-emerald-900 text-emerald-200' : 'border-zinc-700 bg-zinc-800 text-zinc-300'}`}
+              onClick={() => goToPage(p)}
+              disabled={p === page}
+            >{p}</button>
+          ))}
+          <button
+            className="px-3 py-1 rounded border border-zinc-700 bg-zinc-800 text-zinc-300 disabled:opacity-50"
+            onClick={() => goToPage(page + 1)}
+            disabled={page >= totalPages}
+          >Próxima</button>
+        </div>
       </div>
     </>
   );

@@ -2,12 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Dev (Server + Client)",
+      "name": "Debug Server Only",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/server",
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"]
     }

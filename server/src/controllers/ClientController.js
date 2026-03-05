@@ -1,3 +1,4 @@
+// (Removed invalid async total function here)
 import { ClientModel } from "../models/ClientModel.js";
 import { ObservationModel } from "../models/ObservationModel.js";
 import { importExcel } from "../services/importExcel.js";
@@ -8,43 +9,45 @@ export const ClientController = {
     res.json({ ok: true });
   },
 
-  states(req, res) {
-    res.json(ClientModel.states());
+  async states(req, res) {
+    res.json(await ClientModel.states());
   },
 
-  list(req, res) {
+  async list(req, res) {
     const { uf, status, q } = req.query;
-    const rows = ClientModel.list({ uf, status, q });
-    res.json(rows);
+    const page = parseInt(req.query.page || 1, 10);
+    const pageSize = parseInt(req.query.pageSize || 20, 10);
+    const { rows, total } = await ClientModel.list({ uf, status, q, page, pageSize });
+    res.json({ rows, total, page, pageSize });
   },
 
-  create(req, res) {
+  async create(req, res) {
     try {
-      const row = ClientModel.upsertByKey(req.body || {});
+      const row = await ClientModel.upsertByKey(req.body || {});
       res.json(row);
     } catch (e) {
       res.status(400).json({ error: String(e.message || e) });
     }
   },
 
-  update(req, res) {
+  async update(req, res) {
     const id = Number(req.params.id);
-    const row = ClientModel.update(id, req.body || {});
+    const row = await ClientModel.update(id, req.body || {});
     if (!row) return res.status(404).json({ error: "Cliente não encontrado" });
     res.json(row);
   },
 
-  delete(req, res) {
+  async delete(req, res) {
     const id = Number(req.params.id);
-    const ok = ClientModel.delete(id);
+    const ok = await ClientModel.delete(id);
     if (!ok) return res.status(404).json({ error: "Cliente não encontrado" });
     res.json({ deleted: true });
   },
 
-  import(req, res) {
+  async import(req, res) {
     if (!req.file?.path) return res.status(400).json({ error: "Envie um arquivo .xlsx" });
     try {
-      const result = importExcel(req.file.path);
+      const result = await importExcel(req.file.path);
       // Limpa arquivo temporário
       try { fs.unlinkSync(req.file.path); } catch (_) {}
       res.json({ ...result, ok: true });
@@ -57,9 +60,9 @@ export const ClientController = {
 
   // ─── Observations / Follow-ups ───
 
-  getClient(req, res) {
+  async getClient(req, res) {
     const id = Number(req.params.id);
-    const client = ClientModel.get(id);
+    const client = await ClientModel.get(id);
     if (!client) return res.status(404).json({ error: "Cliente não encontrado" });
     res.json(client);
   },
