@@ -98,13 +98,13 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
         </div>
       </div>
 
-      {/* Import section */}
-      <div className="p-4 border-t border-zinc-800/80">
-        <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-500 font-medium mb-3">
+      {/* Import section - logo abaixo dos estados */}
+      <div className="px-5 pb-4 pt-2">
+        <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-500 font-medium mb-2">
           <UploadCloud size={14} />
           <span>Importar Excel</span>
         </label>
-        <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-zinc-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group">
+        <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-zinc-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group w-full">
           <FileSpreadsheet
             size={18}
             className="text-zinc-500 group-hover:text-emerald-400 transition-colors"
@@ -119,7 +119,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
             className="hidden"
           />
         </label>
-        <div className="text-[10px] text-zinc-600 mt-2 text-center">
+        <div className="text-[10px] text-zinc-600 mt-1 text-center">
           Colunas: Loja, Cidade, UF, WhatsApp…
         </div>
       </div>
