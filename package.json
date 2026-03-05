@@ -2,10 +2,6 @@
   "name": "leads-crm",
   "private": true,
   "version": "0.1.0",
-  "workspaces": [
-    "server",
-    "client"
-  ],
   "scripts": {
     "dev": "concurrently -k \"bun --cwd server dev\" \"bun --cwd client dev\"",
     "dev:server": "bun --cwd server dev",
