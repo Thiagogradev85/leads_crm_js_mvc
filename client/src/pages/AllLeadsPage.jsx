@@ -32,13 +32,7 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   }
 
 
-  // Unique values for filter dropdowns (from current page only)
-  const uniqueUfs = useMemo(() => [...new Set(clients.map((c) => c.uf).filter(Boolean))].sort(), [clients]);
-  const uniqueLojas = useMemo(() => [...new Set(clients.map((c) => c.loja).filter(Boolean))].sort(), [clients]);
-  const uniqueCidades = useMemo(() => [...new Set(clients.map((c) => c.cidade).filter(Boolean))].sort(), [clients]);
-
-  // unique values for filter dropdowns
-  // (mantido apenas uma vez, removendo duplicidade)
+  // Unique values for filter dropdowns (mantido apenas uma vez)
   const uniqueUfs = useMemo(() => [...new Set(clients.map((c) => c.uf).filter(Boolean))].sort(), [clients]);
   const uniqueLojas = useMemo(() => [...new Set(clients.map((c) => c.loja).filter(Boolean))].sort(), [clients]);
   const uniqueCidades = useMemo(() => [...new Set(clients.map((c) => c.cidade).filter(Boolean))].sort(), [clients]);
