@@ -1,3 +1,17 @@
+  // ─── Product Follow-ups ───
+  listProductFollowups(productId) {
+    return db.prepare("SELECT * FROM catalog_product_followups WHERE product_id = ? ORDER BY created_at DESC").all(productId);
+  },
+
+  addProductFollowup(productId, message) {
+    db.prepare("INSERT INTO catalog_product_followups (product_id, message, created_at) VALUES (?, ?, ?)")
+      .run(productId, message, nowIso());
+    return this.listProductFollowups(productId);
+  },
+
+  deleteProductFollowup(id) {
+    return db.prepare("DELETE FROM catalog_product_followups WHERE id = ?").run(id).changes > 0;
+  },
 import { db, nowIso } from "../db/db.js";
 
 export const CatalogModel = {

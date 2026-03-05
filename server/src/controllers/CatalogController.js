@@ -1,3 +1,22 @@
+  // ─── Product Follow-ups ───
+  listProductFollowups(req, res) {
+    const prodId = Number(req.params.prodId);
+    res.json(CatalogModel.listProductFollowups(prodId));
+  },
+
+  addProductFollowup(req, res) {
+    const prodId = Number(req.params.prodId);
+    const { message } = req.body || {};
+    if (!message) return res.status(400).json({ error: "Mensagem obrigatória" });
+    res.json(CatalogModel.addProductFollowup(prodId, message));
+  },
+
+  deleteProductFollowup(req, res) {
+    const id = Number(req.params.fuId);
+    const ok = CatalogModel.deleteProductFollowup(id);
+    if (!ok) return res.status(404).json({ error: "Follow-up não encontrado" });
+    res.json({ deleted: true });
+  },
 import { CatalogModel } from "../models/CatalogModel.js";
 import { parseCatalogPdf } from "../services/parseCatalogPdf.js";
 import fs from "node:fs";

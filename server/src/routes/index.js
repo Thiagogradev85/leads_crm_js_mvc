@@ -1,3 +1,7 @@
+// Catalog product follow-ups
+router.get("/catalogs/:id/products/:prodId/followups", CatalogController.listProductFollowups);
+router.post("/catalogs/:id/products/:prodId/followups", CatalogController.addProductFollowup);
+router.delete("/catalogs/:id/products/:prodId/followups/:fuId", CatalogController.deleteProductFollowup);
 import express from "express";
 import multer from "multer";
 import path from "node:path";
