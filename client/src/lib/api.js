@@ -1,3 +1,25 @@
+// ─── Product Follow-ups ───
+export async function listProductFollowups(catalogId, prodId) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}/followups`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function addProductFollowup(catalogId, prodId, message) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}/followups`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function deleteProductFollowup(catalogId, prodId, fuId) {
+  const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}/followups/${fuId}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 // Em produção, frontend e backend são servidos pelo mesmo servidor
 // Em dev, aponta para localhost:8000
 const API = import.meta.env.VITE_API_URL || "";

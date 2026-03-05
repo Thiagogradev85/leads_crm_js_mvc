@@ -54,8 +54,8 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                   ) : "UF"}
                 </th>
               )}
-              <th className="px-4 py-3 text-left font-semibold">WhatsApp</th>
-              <th className="px-4 py-3 text-left font-semibold">Email</th>
+              <th className="px-4 py-3 text-left font-semibold w-[180px]">WhatsApp</th>
+              <th className="px-4 py-3 text-left font-semibold w-[120px]">Email</th>
               <th className="px-4 py-3 text-left font-semibold">Status</th>
               <th className="px-4 py-3 text-left font-semibold">Ações</th>
             </tr>
@@ -111,7 +111,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     </span>
                   </td>
                 )}
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-3 w-[180px]" onClick={(e) => e.stopPropagation()}>
                   {c.whatsapp ? (
                     <a
                       className="flex items-center gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
@@ -119,7 +119,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                       target="_blank"
                     >
                       <MessageCircle size={14} />
-                      <span>{c.whatsapp}</span>
+                      <span className="truncate max-w-[140px]">{c.whatsapp}</span>
                       <ExternalLink
                         size={11}
                         className="text-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -131,14 +131,14 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-3 w-[120px]" onClick={(e) => e.stopPropagation()}>
                   {c.email ? (
                     <a
                       href={`mailto:${c.email}`}
                       className="flex items-center gap-1.5 text-zinc-300 hover:text-sky-300 transition-colors"
                     >
                       <Mail size={13} className="text-zinc-500" />
-                      <span className="truncate max-w-[180px]">{c.email}</span>
+                      <span className="truncate max-w-[80px]">{c.email}</span>
                     </a>
                   ) : (
                     <span className="text-zinc-600 flex items-center gap-1.5">

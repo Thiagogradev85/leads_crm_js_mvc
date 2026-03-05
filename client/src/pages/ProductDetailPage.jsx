@@ -4,7 +4,73 @@ import {
   ArrowLeft, Save, Bike, Zap, Battery, Gauge, Timer, Droplets,
   Weight, CircleDot, Box, Package, Tag,
 } from "lucide-react";
-import { getCatalog, updateProduct } from "../lib/api";
+import { getCatalog, updateProduct, listProductFollowups, addProductFollowup, deleteProductFollowup } from "../lib/api";
+// Componente de Follow-up
+function ProductFollowup({ catalogId, prodId, readOnly }) {
+  const [followups, setFollowups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [msg, setMsg] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const data = await listProductFollowups(catalogId, prodId);
+      setFollowups(data);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => { load(); }, [catalogId, prodId]);
+
+  async function handleAdd() {
+    if (!msg.trim()) return;
+    setSaving(true);
+    await addProductFollowup(catalogId, prodId, msg);
+    setMsg("");
+    setSaving(false);
+    load();
+  }
+
+  async function handleDelete(id) {
+    await deleteProductFollowup(catalogId, prodId, id);
+    load();
+  }
+
+  return (
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 overflow-hidden mt-6">
+      <div className="px-5 py-3 border-b border-zinc-800/60 flex items-center justify-between">
+        <span className="text-sm font-semibold text-zinc-300">Follow-up (Histórico de Interações)</span>
+      </div>
+      <div className="p-5 space-y-3">
+        {loading ? <div className="text-zinc-400">Carregando...</div> :
+          followups.length === 0 ? <div className="text-zinc-500">Nenhum follow-up registrado.</div> :
+          followups.map(fu => (
+            <div key={fu.id} className="bg-zinc-800/60 rounded p-3 flex items-start justify-between">
+              <div>
+                <div className="text-xs text-zinc-400">{new Date(fu.created_at).toLocaleString()}</div>
+                <div className="text-zinc-200 whitespace-pre-line">{fu.message}</div>
+              </div>
+              {!readOnly && <button className="ml-2 text-xs text-red-400 hover:underline" onClick={() => handleDelete(fu.id)}>Excluir</button>}
+            </div>
+          ))}
+        {!readOnly && (
+          <div className="flex gap-2 mt-2">
+            <input
+              className="flex-1 rounded bg-zinc-900/60 border border-zinc-700 px-3 py-2 text-zinc-200"
+              placeholder="Digite um novo follow-up..."
+              value={msg}
+              onChange={e => setMsg(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleAdd(); }}
+              disabled={saving}
+            />
+            <button className="px-4 py-2 rounded bg-green-700 text-white disabled:opacity-60" onClick={handleAdd} disabled={saving || !msg.trim()}>Salvar</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const SPEC_FIELDS = [
   { icon: Battery, label: "Bateria", key: "bateria" },
@@ -234,25 +300,9 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Extras */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 overflow-hidden">
-          <div className="px-5 py-3 border-b border-zinc-800/60">
-            <span className="text-sm font-semibold text-zinc-300">Extras / Observações</span>
-          </div>
-          <div className="p-5">
-            {isActive ? (
-              <textarea
-                value={form.extras || ""}
-                onChange={(e) => set("extras", e.target.value)}
-                rows={3}
-                placeholder="Informações adicionais sobre o produto..."
-                className={inputClass + " resize-none placeholder:text-zinc-700"}
-              />
-            ) : (
-              <div className={readOnlyClass + " min-h-[60px]"}>{form.extras || "—"}</div>
-            )}
-          </div>
-        </div>
+
+        {/* Follow-up */}
+        <ProductFollowup catalogId={catalogId} prodId={prodId} readOnly={!isActive} />
 
         {/* Specs preview (read-only summary) */}
         <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 overflow-hidden">

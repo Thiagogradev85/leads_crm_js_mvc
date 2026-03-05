@@ -10,13 +10,13 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 
 export default function App() {
   const [states, setStates] = useState([]);
-  const [uf, setUf] = useState("");
+  const [uf, setUf] = useState(""); // Começa vazio para mostrar todos os leads
   const [loading, setLoading] = useState(false);
 
   async function refreshStates() {
     const st = await getStates();
     setStates(st);
-    if (!uf && st.length) setUf(st[0].uf);
+    // Não seleciona UF automaticamente, deixa vazio para mostrar todos os leads
   }
 
   useEffect(() => {
@@ -41,11 +41,11 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={<ClientsPage uf={uf} onRefreshStates={refreshStates} />}
+            element={<AllLeadsPage onRefreshStates={refreshStates} uf={uf} />}
           />
           <Route
             path="/all-leads"
-            element={<AllLeadsPage onRefreshStates={refreshStates} />}
+            element={<AllLeadsPage onRefreshStates={refreshStates} uf={uf} />}
           />
           <Route
             path="/client/:id"

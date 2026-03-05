@@ -27,7 +27,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
       {/* Stats mini */}
       <div
         className="px-5 py-3 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors group"
-        onClick={() => navigate("/all-leads")}
+        onClick={() => { onSelectUf(""); navigate("/all-leads"); }}
       >
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-500 group-hover:text-emerald-300 transition-colors">Total de leads</span>

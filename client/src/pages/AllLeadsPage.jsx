@@ -4,11 +4,11 @@ import { listClients, updateClient, deleteClient } from "../lib/api";
 import { STATUS } from "../lib/constants";
 import ClientTable from "../components/ClientTable";
 
-export default function AllLeadsPage({ onRefreshStates }) {
+export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [clients, setClients] = useState([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
-  const [filterUf, setFilterUf] = useState("");
+  const [filterUf, setFilterUf] = useState(propUf || "");
   const [filterLoja, setFilterLoja] = useState("");
   const [filterCidade, setFilterCidade] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,6 +55,11 @@ export default function AllLeadsPage({ onRefreshStates }) {
   useEffect(() => {
     refreshClients().catch(console.error);
   }, [status, q]);
+
+  // Atualiza filtro de UF quando propUf muda (ex: ao clicar na Sidebar)
+  useEffect(() => {
+    if (propUf !== undefined) setFilterUf(propUf);
+  }, [propUf]);
 
   async function onDelete(id) {
     if (!confirm("Tem certeza que deseja deletar este cliente?")) return;
