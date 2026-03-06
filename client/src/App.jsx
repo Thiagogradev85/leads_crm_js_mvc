@@ -7,6 +7,7 @@ import ClientDetailPage from "./pages/ClientDetailPage";
 import AllLeadsPage from "./pages/AllLeadsPage";
 import CatalogPage from "./pages/CatalogPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import SellersPage from "./pages/SellersPage";
 
 export default function App() {
   const [states, setStates] = useState([]);
@@ -56,6 +57,7 @@ export default function App() {
             path="/catalog/:catalogId/product/:prodId"
             element={<ProductDetailPage />}
           />
+          <Route path="/sellers" element={<SellersPage />} />
         </Routes>
       </main>
     </div>

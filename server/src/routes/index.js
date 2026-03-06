@@ -5,11 +5,20 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { ClientController } from "../controllers/ClientController.js";
 import { CatalogController } from "../controllers/CatalogController.js";
+import { SellerController } from "../controllers/SellerController.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+// ─── Sellers ───
+router.get("/sellers", SellerController.list);
+router.get("/sellers/:id", SellerController.get);
+router.post("/sellers", SellerController.create);
+router.put("/sellers/:id", SellerController.update);
+router.delete("/sellers/:id", SellerController.delete);
+
 router.get("/clients/total", ClientController.total);
 // Catalog product follow-ups
 router.get("/catalogs/:id/products/:prodId/followups", CatalogController.listProductFollowups);

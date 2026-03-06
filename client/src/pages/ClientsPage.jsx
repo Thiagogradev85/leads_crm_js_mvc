@@ -1,28 +1,58 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Search, Filter, ChevronDown, Plus, Building2 } from "lucide-react";
-import { listClients, updateClient, upsertClient, deleteClient } from "../lib/api";
+import { listClients, updateClient, upsertClient, deleteClient, listSellers } from "../lib/api";
 import { STATUS } from "../lib/constants";
 import ClientTable from "../components/ClientTable";
 import ClientForm from "../components/ClientForm";
 
 export default function ClientsPage({ uf, onRefreshStates }) {
   const [clients, setClients] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState(0);
+  const [sellers, setSellers] = useState([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  async function refreshClients() {
+
+
+  // Função robusta para atualizar clientes e sincronizar paginação
+  const refreshClients = useCallback(async (newPage = page, newPageSize = pageSize) => {
     if (!uf) return;
     setLoading(true);
-    const rows = await listClients({ uf, status, q });
-    setClients(rows);
-    setLoading(false);
+    try {
+      const result = await listClients({ uf, status, q, page: newPage, pageSize: newPageSize });
+      setClients(result.rows || []);
+      setTotal(result.total || 0);
+      setPage(result.page || newPage);
+      setPageSize(result.pageSize || newPageSize);
+    } finally {
+      setLoading(false);
+    }
+  }, [uf, status, q, page, pageSize]);
+
+  async function refreshSellers() {
+    try {
+      const data = await listSellers();
+      setSellers(data);
+    } catch {
+      setSellers([]);
+    }
   }
 
+
+
+  // Sempre que uf, status ou q mudar, volta para página 1
   useEffect(() => {
-    refreshClients().catch(console.error);
-  }, [uf, status, q]);
+    setPage(1);
+    refreshClients(1).catch(console.error);
+  }, [uf, status, q, refreshClients]);
+
+  useEffect(() => {
+    refreshSellers();
+  }, []);
 
   async function onSave(payload) {
     await upsertClient(payload);
@@ -38,8 +68,14 @@ export default function ClientsPage({ uf, onRefreshStates }) {
     await refreshClients();
   }
 
+
   async function onStatusChange(id, value) {
     await updateClient(id, { status: value });
+    await refreshClients();
+  }
+
+  async function onSellerChange(id, vendedor_id) {
+    await updateClient(id, { vendedor_id });
     await refreshClients();
   }
 
@@ -121,9 +157,25 @@ export default function ClientsPage({ uf, onRefreshStates }) {
           clients={clients}
           loading={loading}
           uf={uf}
+          sellers={sellers}
           onStatusChange={onStatusChange}
+          onSellerChange={onSellerChange}
           onDelete={onDelete}
         />
+        {/* Paginação */}
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            className="px-4 py-2 rounded bg-zinc-800 text-zinc-300 disabled:opacity-50"
+            disabled={page <= 1}
+            onClick={() => refreshClients(page - 1)}
+          >Anterior</button>
+          <span className="px-2 py-2 text-zinc-400">Página {page} de {Math.max(1, Math.ceil(total / pageSize))}</span>
+          <button
+            className="px-4 py-2 rounded bg-zinc-800 text-zinc-300 disabled:opacity-50"
+            disabled={page >= Math.ceil(total / pageSize)}
+            onClick={() => refreshClients(page + 1)}
+          >Próxima</button>
+        </div>
       </div>
     </>
   );
