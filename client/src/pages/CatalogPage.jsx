@@ -76,16 +76,18 @@ function ProductRow({ product, catalogId, onRefresh, readOnly }) {
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {specs.map(({ label, key }) => (
-            <div key={key}>
-              <label className="text-[11px] text-zinc-500 uppercase">{label}</label>
-              <input
-                value={form[key] || ""}
-                onChange={(e) => set(key, e.target.value)}
-                className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50"
-              />
-            </div>
-          ))}
+          {/* Preço destacado */}
+          <div>
+            <label className="text-[11px] text-emerald-400 uppercase font-bold">Preço por Unidade</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.preco ?? 0}
+              onChange={(e) => set("preco", parseFloat(e.target.value))}
+              className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-emerald-400 text-sm text-white focus:outline-none focus:border-emerald-500/50 font-bold"
+            />
+          </div>
           <div>
             <label className="text-[11px] text-zinc-500 uppercase">Estoque</label>
             <input
@@ -96,6 +98,34 @@ function ProductRow({ product, catalogId, onRefresh, readOnly }) {
               className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50"
             />
           </div>
+          {/* Suspensão */}
+          <div>
+            <label className="text-[11px] text-zinc-500 uppercase">Suspensão</label>
+            <input
+              value={form.suspensao || ""}
+              onChange={(e) => set("suspensao", e.target.value)}
+              className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+            />
+          </div>
+          {/* Freio */}
+          <div>
+            <label className="text-[11px] text-zinc-500 uppercase">Freio</label>
+            <input
+              value={form.freio || ""}
+              onChange={(e) => set("freio", e.target.value)}
+              className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+            />
+          </div>
+          {specs.map(({ label, key }) => (
+            <div key={key}>
+              <label className="text-[11px] text-zinc-500 uppercase">{label}</label>
+              <input
+                value={form[key] || ""}
+                onChange={(e) => set(key, e.target.value)}
+                className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+          ))}
         </div>
         <div>
           <label className="text-[11px] text-zinc-500 uppercase">Extras / Observações</label>
@@ -180,12 +210,16 @@ function ProductRow({ product, catalogId, onRefresh, readOnly }) {
 function NewProductForm({ catalogId, onRefresh }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ tipo: "scooter", modelo: "", bateria: "", motor: "", pneus: "", velocidade: "", autonomia: "", tempo_carga: "", carregador: "", impermeabilidade: "", peso: "", estoque: 0, extras: "" });
+    // Adiciona campos para preco, suspensao e freio
+    useEffect(() => {
+      setForm((f) => ({ preco: 0, suspensao: "", freio: "", ...f }));
+    }, []);
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
   async function onSave() {
     if (!form.modelo.trim()) return alert("Modelo é obrigatório");
     await addProduct(catalogId, form);
-    setForm({ tipo: "scooter", modelo: "", bateria: "", motor: "", pneus: "", velocidade: "", autonomia: "", tempo_carga: "", carregador: "", impermeabilidade: "", peso: "", estoque: 0, extras: "" });
+    setForm({ tipo: "scooter", modelo: "", bateria: "", motor: "", pneus: "", velocidade: "", autonomia: "", tempo_carga: "", carregador: "", impermeabilidade: "", peso: "", estoque: 0, extras: "", preco: 0, suspensao: "", freio: "" });
     setOpen(false);
     onRefresh();
   }
@@ -204,6 +238,7 @@ function NewProductForm({ catalogId, onRefresh }) {
     { label: "Velocidade", key: "velocidade" }, { label: "Autonomia", key: "autonomia" },
     { label: "Tempo Carga", key: "tempo_carga" }, { label: "Carregador", key: "carregador" },
     { label: "Proteção (IP)", key: "impermeabilidade" }, { label: "Peso", key: "peso" },
+    { label: "Suspensão", key: "suspensao" }, { label: "Freio", key: "freio" },
   ];
 
   return (
@@ -220,16 +255,21 @@ function NewProductForm({ catalogId, onRefresh }) {
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {/* Preço destacado acima do estoque */}
+        <div>
+          <label className="text-[11px] text-emerald-400 uppercase font-bold">Preço por Unidade</label>
+          <input type="number" min="0" step="0.01" value={form.preco ?? 0} onChange={(e) => set("preco", parseFloat(e.target.value))} className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-emerald-400 text-sm text-white focus:outline-none focus:border-emerald-500/50 font-bold" />
+        </div>
+        <div>
+          <label className="text-[11px] text-zinc-500 uppercase">Estoque</label>
+          <input type="number" min="0" value={form.estoque} onChange={(e) => set("estoque", Number(e.target.value))} className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50" />
+        </div>
         {fields.map(({ label, key }) => (
           <div key={key}>
             <label className="text-[11px] text-zinc-500 uppercase">{label}</label>
             <input value={form[key] || ""} onChange={(e) => set(key, e.target.value)} className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50" />
           </div>
         ))}
-        <div>
-          <label className="text-[11px] text-zinc-500 uppercase">Estoque</label>
-          <input type="number" min="0" value={form.estoque} onChange={(e) => set("estoque", Number(e.target.value))} className="w-full mt-1 px-3 py-1.5 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500/50" />
-        </div>
       </div>
     </div>
   );

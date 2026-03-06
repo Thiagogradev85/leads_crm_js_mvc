@@ -82,6 +82,8 @@ const SPEC_FIELDS = [
   { icon: Zap, label: "Carregador", key: "carregador" },
   { icon: Droplets, label: "Proteção (IP)", key: "impermeabilidade" },
   { icon: Weight, label: "Peso", key: "peso" },
+  { icon: Package, label: "Suspensão", key: "suspensao" },
+  { icon: Package, label: "Freio", key: "freio" },
 ];
 
 export default function ProductDetailPage() {
@@ -206,7 +208,7 @@ export default function ProductDetailPage() {
       {/* Body */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Top info cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Tipo */}
           <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/20">
             <label className="text-[11px] text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -242,6 +244,31 @@ export default function ProductDetailPage() {
             )}
           </div>
 
+          {/* Preço com máscara de reais */}
+          <div className="p-4 rounded-xl border border-emerald-400 bg-zinc-900/20">
+            <label className="text-[11px] text-emerald-400 uppercase tracking-wider font-bold flex items-center gap-1.5">
+              <Package size={11} /> Preço por Unidade
+            </label>
+            {isActive ? (
+              <input
+                type="text"
+                inputMode="decimal"
+                value={typeof form.preco === 'number' ? form.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : form.preco}
+                onChange={e => {
+                  // Remove tudo que não for número
+                  const raw = e.target.value.replace(/[^\d]/g, "");
+                  // Converte para float
+                  const val = Number(raw) / 100;
+                  set("preco", val);
+                }}
+                className={inputClass + " border-emerald-400 font-bold"}
+                placeholder="R$ 0,00"
+              />
+            ) : (
+              <div className={readOnlyClass}>{typeof form.preco === 'number' ? form.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : form.preco}</div>
+            )}
+          </div>
+
           {/* Estoque */}
           <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/20">
             <label className="text-[11px] text-zinc-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -271,6 +298,7 @@ export default function ProductDetailPage() {
               </span>
             </div>
           </div>
+
         </div>
 
         {/* Specs grid */}

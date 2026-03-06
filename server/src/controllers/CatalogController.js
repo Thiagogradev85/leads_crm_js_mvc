@@ -80,7 +80,14 @@ export const CatalogController = {
   async addProduct(req, res) {
     const catalogId = Number(req.params.id);
     try {
-      const prod = await CatalogModel.upsertProduct(catalogId, req.body || {});
+      // Garante que os campos estejam presentes e com valores padrão
+      const payload = {
+        ...req.body,
+        preco: req.body.preco ?? 0,
+        suspensao: req.body.suspensao ?? "",
+        freio: req.body.freio ?? ""
+      };
+      const prod = await CatalogModel.upsertProduct(catalogId, payload);
       res.json(prod);
     } catch (e) {
       res.status(400).json({ error: String(e.message || e) });
@@ -89,7 +96,14 @@ export const CatalogController = {
 
   async updateProduct(req, res) {
     const prodId = Number(req.params.prodId);
-    const prod = await CatalogModel.updateProduct(prodId, req.body || {});
+    // Garante que os campos estejam presentes e com valores padrão
+    const payload = {
+      ...req.body,
+      preco: req.body.preco ?? 0,
+      suspensao: req.body.suspensao ?? "",
+      freio: req.body.freio ?? ""
+    };
+    const prod = await CatalogModel.updateProduct(prodId, payload);
     if (!prod) return res.status(404).json({ error: "Produto não encontrado" });
     res.json(prod);
   },

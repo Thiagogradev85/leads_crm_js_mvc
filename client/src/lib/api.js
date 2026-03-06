@@ -159,20 +159,34 @@ export async function deleteCatalog(id) {
 }
 
 export async function addProduct(catalogId, payload) {
+  // Garante que os campos estejam presentes e com valores padrão
+  const fullPayload = {
+    ...payload,
+    preco: payload.preco ?? 0,
+    suspensao: payload.suspensao ?? "",
+    freio: payload.freio ?? ""
+  };
   const r = await fetch(`${API}/catalogs/${catalogId}/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(fullPayload),
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
 
 export async function updateProduct(catalogId, prodId, payload) {
+  // Garante que os campos estejam presentes e com valores padrão
+  const fullPayload = {
+    ...payload,
+    preco: payload.preco ?? 0,
+    suspensao: payload.suspensao ?? "",
+    freio: payload.freio ?? ""
+  };
   const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(fullPayload),
   });
   if (!r.ok) throw new Error(await r.text());
   return r.json();

@@ -126,13 +126,14 @@ export const CatalogModel = {
         `UPDATE catalog_products SET
           tipo=$1, nome=$2, bateria=$3, motor=$4, pneus=$5,
           velocidade=$6, autonomia=$7, tempo_carga=$8, carregador=$9,
-          impermeabilidade=$10, peso=$11, estoque=$12, extras=$13
-        WHERE id=$14`,
+          impermeabilidade=$10, peso=$11, estoque=$12, extras=$13,
+          preco=$14, suspensao=$15, freio=$16
+        WHERE id=$17`,
         [
           payload.tipo || "scooter", payload.nome || "", payload.bateria || "", payload.motor || "",
           payload.pneus || "", payload.velocidade || "", payload.autonomia || "", payload.tempo_carga || "",
           payload.carregador || "", payload.impermeabilidade || "", payload.peso || "", payload.estoque ?? 0,
-          payload.extras || "", existing.rows[0].id
+          payload.extras || "", payload.preco ?? 0, payload.suspensao || "", payload.freio || "", existing.rows[0].id
         ]
       );
       return { ...(await this.getProduct(existing.rows[0].id)), _updated: true };
@@ -140,14 +141,14 @@ export const CatalogModel = {
       const result = await client.query(
         `INSERT INTO catalog_products
           (catalog_id, tipo, modelo, nome, bateria, motor, pneus, velocidade, autonomia,
-           tempo_carga, carregador, impermeabilidade, peso, estoque, extras, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+           tempo_carga, carregador, impermeabilidade, peso, estoque, extras, created_at, preco, suspensao, freio)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
         RETURNING *`,
         [
           catalogId, payload.tipo || "scooter", modelo, payload.nome || "", payload.bateria || "",
           payload.motor || "", payload.pneus || "", payload.velocidade || "", payload.autonomia || "",
           payload.tempo_carga || "", payload.carregador || "", payload.impermeabilidade || "", payload.peso || "",
-          payload.estoque ?? 0, payload.extras || "", now
+          payload.estoque ?? 0, payload.extras || "", now, payload.preco ?? 0, payload.suspensao || "", payload.freio || ""
         ]
       );
       return { ...(await this.getProduct(result.rows[0].id)), _new: true };
@@ -158,7 +159,7 @@ export const CatalogModel = {
     const prod = await this.getProduct(id);
     if (!prod) return null;
     const fields = ["tipo", "modelo", "nome", "bateria", "motor", "pneus", "velocidade",
-      "autonomia", "tempo_carga", "carregador", "impermeabilidade", "peso", "estoque", "extras"];
+      "autonomia", "tempo_carga", "carregador", "impermeabilidade", "peso", "estoque", "extras", "preco", "suspensao", "freio"];
     const merged = { ...prod };
     for (const f of fields) {
       if (data[f] !== undefined) merged[f] = data[f];
@@ -167,12 +168,14 @@ export const CatalogModel = {
       `UPDATE catalog_products SET
         tipo=$1, modelo=$2, nome=$3, bateria=$4, motor=$5, pneus=$6,
         velocidade=$7, autonomia=$8, tempo_carga=$9, carregador=$10,
-        impermeabilidade=$11, peso=$12, estoque=$13, extras=$14
-      WHERE id=$15`,
+        impermeabilidade=$11, peso=$12, estoque=$13, extras=$14,
+        preco=$15, suspensao=$16, freio=$17
+      WHERE id=$18`,
       [
         merged.tipo, merged.modelo, merged.nome, merged.bateria, merged.motor, merged.pneus,
         merged.velocidade, merged.autonomia, merged.tempo_carga, merged.carregador,
-        merged.impermeabilidade, merged.peso, merged.estoque, merged.extras, id
+        merged.impermeabilidade, merged.peso, merged.estoque, merged.extras,
+        merged.preco ?? 0, merged.suspensao || "", merged.freio || "", id
       ]
     );
     return await this.getProduct(id);
