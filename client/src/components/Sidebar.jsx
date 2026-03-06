@@ -4,7 +4,7 @@ import { MapPin, Users, Globe, UploadCloud, FileSpreadsheet, BookOpen } from "lu
 
 export default function Sidebar({ states, uf, onSelectUf, onImport }) {
   const navigate = useNavigate();
-  const totalClients = states.reduce((acc, s) => acc + s.count, 0);
+  const totalClients = states.reduce((acc, s) => acc + Number(s.count), 0);
 
   return (
     <aside className="w-72 border-r border-zinc-800/80 flex flex-col bg-zinc-950/80 backdrop-blur-sm">
