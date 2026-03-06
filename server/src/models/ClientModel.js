@@ -8,6 +8,10 @@ const ALL_UFS = [
 ];
 
 export const ClientModel = {
+    async totalLeads() {
+      const result = await client.query("SELECT COUNT(*) as total FROM clients");
+      return Number(result.rows[0]?.total || 0);
+    },
   async list({ uf, status, q, page = 1, pageSize = 20 } = {}) {
     let sql = "SELECT * FROM clients WHERE 1=1";
     const params = [];

@@ -1,3 +1,8 @@
+export async function getTotalLeads() {
+  const r = await fetch(`${API}/clients/total`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 // ─── Product Follow-ups ───
 export async function listProductFollowups(catalogId, prodId) {
   const r = await fetch(`${API}/catalogs/${catalogId}/products/${prodId}/followups`);

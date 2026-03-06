@@ -5,6 +5,14 @@ import { importExcel } from "../services/importExcel.js";
 import fs from "node:fs";
 
 export const ClientController = {
+    async total(req, res) {
+      try {
+        const total = await ClientModel.totalLeads();
+        res.json({ total });
+      } catch (e) {
+        res.status(500).json({ error: "Erro ao buscar total de leads", details: String(e) });
+      }
+    },
   health(req, res) {
     res.json({ ok: true });
   },

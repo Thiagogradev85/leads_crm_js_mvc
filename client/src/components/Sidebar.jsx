@@ -4,7 +4,13 @@ import { MapPin, Users, Globe, UploadCloud, FileSpreadsheet, BookOpen } from "lu
 
 export default function Sidebar({ states, uf, onSelectUf, onImport }) {
   const navigate = useNavigate();
-  const totalClients = states.reduce((acc, s) => acc + s.count, 0);
+  const [totalLeads, setTotalLeads] = React.useState(0);
+
+  React.useEffect(() => {
+    import("../lib/api").then(({ getTotalLeads }) => {
+      getTotalLeads().then(res => setTotalLeads(res.total)).catch(() => setTotalLeads(0));
+    });
+  }, []);
 
   return (
     <aside className="w-72 border-r border-zinc-800/80 flex flex-col bg-zinc-950/80 backdrop-blur-sm">
@@ -31,7 +37,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
       >
         <div className="flex items-center justify-between text-xs">
           <span className="text-zinc-500 group-hover:text-emerald-300 transition-colors">Total de leads</span>
-          <span className="text-emerald-400 font-semibold">{totalClients}</span>
+          <span className="text-emerald-400 font-semibold">{totalLeads}</span>
         </div>
       </div>
 

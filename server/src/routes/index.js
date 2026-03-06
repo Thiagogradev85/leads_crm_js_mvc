@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+router.get("/clients/total", ClientController.total);
 // Catalog product follow-ups
 router.get("/catalogs/:id/products/:prodId/followups", CatalogController.listProductFollowups);
 router.post("/catalogs/:id/products/:prodId/followups", CatalogController.addProductFollowup);
