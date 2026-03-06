@@ -4,103 +4,107 @@ import fs from "node:fs";
 
 export const CatalogController = {
   // ─── Product Follow-ups ───
-  listProductFollowups(req, res) {
+  async listProductFollowups(req, res) {
     const prodId = Number(req.params.prodId);
-    res.json(CatalogModel.listProductFollowups(prodId));
+    const result = await CatalogModel.listProductFollowups(prodId);
+    res.json(result);
   },
 
-  addProductFollowup(req, res) {
+  async addProductFollowup(req, res) {
     const prodId = Number(req.params.prodId);
     const { message } = req.body || {};
     if (!message) return res.status(400).json({ error: "Mensagem obrigatória" });
-    res.json(CatalogModel.addProductFollowup(prodId, message));
+    const result = await CatalogModel.addProductFollowup(prodId, message);
+    res.json(result);
   },
 
-  deleteProductFollowup(req, res) {
+  async deleteProductFollowup(req, res) {
     const id = Number(req.params.fuId);
-    const ok = CatalogModel.deleteProductFollowup(id);
+    const ok = await CatalogModel.deleteProductFollowup(id);
     if (!ok) return res.status(404).json({ error: "Follow-up não encontrado" });
     res.json({ deleted: true });
   },
   // ─── Catalogs ───
 
-  listCatalogs(req, res) {
-    res.json(CatalogModel.listCatalogs());
+  async listCatalogs(req, res) {
+    const result = await CatalogModel.listCatalogs();
+    res.json(result);
   },
 
-  getCatalog(req, res) {
+  async getCatalog(req, res) {
     const id = Number(req.params.id);
-    const cat = CatalogModel.getCatalog(id);
+    const cat = await CatalogModel.getCatalog(id);
     if (!cat) return res.status(404).json({ error: "Catálogo não encontrado" });
-    const products = CatalogModel.listProducts(id);
+    const products = await CatalogModel.listProducts(id);
     res.json({ ...cat, products });
   },
 
-  createCatalog(req, res) {
+  async createCatalog(req, res) {
     try {
-      const cat = CatalogModel.createCatalog(req.body || {});
+      const cat = await CatalogModel.createCatalog(req.body || {});
       res.json(cat);
     } catch (e) {
       res.status(400).json({ error: String(e.message || e) });
     }
   },
 
-  updateCatalog(req, res) {
+  async updateCatalog(req, res) {
     const id = Number(req.params.id);
-    const cat = CatalogModel.updateCatalog(id, req.body || {});
+    const cat = await CatalogModel.updateCatalog(id, req.body || {});
     if (!cat) return res.status(404).json({ error: "Catálogo não encontrado" });
     res.json(cat);
   },
 
-  closeCatalog(req, res) {
+  async closeCatalog(req, res) {
     const id = Number(req.params.id);
-    const cat = CatalogModel.closeCatalog(id);
+    const cat = await CatalogModel.closeCatalog(id);
     if (!cat) return res.status(404).json({ error: "Catálogo não encontrado" });
     res.json(cat);
   },
 
-  deleteCatalog(req, res) {
+  async deleteCatalog(req, res) {
     const id = Number(req.params.id);
-    const ok = CatalogModel.deleteCatalog(id);
+    const ok = await CatalogModel.deleteCatalog(id);
     if (!ok) return res.status(404).json({ error: "Catálogo não encontrado" });
     res.json({ deleted: true });
   },
 
   // ─── Products ───
 
-  listProducts(req, res) {
+  async listProducts(req, res) {
     const catalogId = Number(req.params.id);
-    res.json(CatalogModel.listProducts(catalogId));
+    const result = await CatalogModel.listProducts(catalogId);
+    res.json(result);
   },
 
-  addProduct(req, res) {
+  async addProduct(req, res) {
     const catalogId = Number(req.params.id);
     try {
-      const prod = CatalogModel.upsertProduct(catalogId, req.body || {});
+      const prod = await CatalogModel.upsertProduct(catalogId, req.body || {});
       res.json(prod);
     } catch (e) {
       res.status(400).json({ error: String(e.message || e) });
     }
   },
 
-  updateProduct(req, res) {
+  async updateProduct(req, res) {
     const prodId = Number(req.params.prodId);
-    const prod = CatalogModel.updateProduct(prodId, req.body || {});
+    const prod = await CatalogModel.updateProduct(prodId, req.body || {});
     if (!prod) return res.status(404).json({ error: "Produto não encontrado" });
     res.json(prod);
   },
 
-  deleteProduct(req, res) {
+  async deleteProduct(req, res) {
     const prodId = Number(req.params.prodId);
-    const ok = CatalogModel.deleteProduct(prodId);
+    const ok = await CatalogModel.deleteProduct(prodId);
     if (!ok) return res.status(404).json({ error: "Produto não encontrado" });
     res.json({ deleted: true });
   },
 
-  updateStock(req, res) {
+  async updateStock(req, res) {
     const prodId = Number(req.params.prodId);
     const estoque = Number(req.body?.estoque ?? 0);
-    const prod = CatalogModel.updateStock(prodId, estoque);
+    const prod = await CatalogModel.updateStock(prodId, estoque);
     if (!prod) return res.status(404).json({ error: "Produto não encontrado" });
     res.json(prod);
   },

@@ -366,7 +366,8 @@ export default function CatalogPage() {
 
   async function refresh() {
     const data = await listCatalogs();
-    setCatalogs(data);
+    // Garante que catalogs seja sempre array
+    setCatalogs(Array.isArray(data) ? data : []);
   }
 
   useEffect(() => {

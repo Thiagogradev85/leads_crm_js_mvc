@@ -11,7 +11,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
       {/* Logo */}
       <div
         className="p-5 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors"
-        onClick={() => navigate("/")}
+        onClick={() => { onSelectUf(""); navigate("/all-leads"); }}
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -58,7 +58,13 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
           {states.map((s) => (
             <button
               key={s.uf}
-              onClick={() => onSelectUf(s.uf)}
+              onClick={() => {
+                onSelectUf(s.uf);
+                // Se estiver no catálogo, redireciona para leads
+                if (window.location.pathname.startsWith("/catalog")) {
+                  navigate("/all-leads");
+                }
+              }}
               className={
                 "w-full text-left px-3 py-2 rounded-lg border transition-all duration-150 flex justify-between items-center group " +
                 (uf === s.uf

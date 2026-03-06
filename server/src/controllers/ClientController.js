@@ -9,16 +9,28 @@ export const ClientController = {
     res.json({ ok: true });
   },
 
+
   async states(req, res) {
-    res.json(await ClientModel.states());
+    try {
+      const result = await ClientModel.states();
+      res.json(result);
+    } catch (e) {
+      console.error("Erro em /states:", e);
+      res.status(500).json({ error: "Erro ao buscar estados", details: String(e) });
+    }
   },
 
   async list(req, res) {
-    const { uf, status, q } = req.query;
-    const page = parseInt(req.query.page || 1, 10);
-    const pageSize = parseInt(req.query.pageSize || 20, 10);
-    const { rows, total } = await ClientModel.list({ uf, status, q, page, pageSize });
-    res.json({ rows, total, page, pageSize });
+    try {
+      const { uf, status, q } = req.query;
+      const page = parseInt(req.query.page || 1, 10);
+      const pageSize = parseInt(req.query.pageSize || 20, 10);
+      const { rows, total } = await ClientModel.list({ uf, status, q, page, pageSize });
+      res.json({ rows, total, page, pageSize });
+    } catch (e) {
+      console.error("Erro em /clients:", e);
+      res.status(500).json({ error: "Erro ao buscar clientes", details: String(e) });
+    }
   },
 
   async create(req, res) {
@@ -54,7 +66,8 @@ export const ClientController = {
     } catch (e) {
       // Limpa arquivo temporário mesmo em caso de erro
       try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (_) {}
-      res.status(400).json({ error: String(e.message || e) });
+      console.error("Erro em /import:", e);
+      res.status(500).json({ error: "Erro ao importar Excel", details: String(e) });
     }
   },
 

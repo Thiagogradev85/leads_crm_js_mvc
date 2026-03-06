@@ -1,32 +1,30 @@
-import { db, nowIso } from "../db/db.js";
+import { client } from "../db/db.postgres.js";
+import { nowIso } from "../db/db.js";
 
 export const ObservationModel = {
-  listByClient(clientId) {
-    return db
-      .prepare("SELECT * FROM observations WHERE client_id = ? ORDER BY datetime(created_at) DESC")
-      .all(clientId);
+  async listByClient(clientId) {
+    const result = await client.query(
+      "SELECT * FROM observations WHERE client_id = $1 ORDER BY created_at DESC",
+      [clientId]
+    );
+    return result.rows;
   },
 
-  create(clientId, { type = "observacao", content }) {
+  async create(clientId, { type = "observacao", content }) {
     if (!content || !String(content).trim()) throw new Error("Conteúdo é obrigatório");
-
-    const stmt = db.prepare(`
-      INSERT INTO observations (client_id, type, content, created_at)
-      VALUES ($client_id, $type, $content, $created_at)
-    `);
-    const res = stmt.run({
-      $client_id: clientId,
-      $type: type,
-      $content: String(content).trim(),
-      $created_at: nowIso(),
-    });
-    return db.prepare("SELECT * FROM observations WHERE id = ?").get(res.lastInsertRowid);
+    const now = nowIso();
+    const result = await client.query(
+      "INSERT INTO observations (client_id, type, content, created_at) VALUES ($1, $2, $3, $4) RETURNING *",
+      [clientId, type, String(content).trim(), now]
+    );
+    return result.rows[0];
   },
 
-  delete(id) {
-    const existing = db.prepare("SELECT * FROM observations WHERE id = ?").get(id);
-    if (!existing) return false;
-    db.prepare("DELETE FROM observations WHERE id = ?").run(id);
-    return true;
+  async delete(id) {
+    const result = await client.query(
+      "DELETE FROM observations WHERE id = $1",
+      [id]
+    );
+    return result.rowCount > 0;
   },
 };

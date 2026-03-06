@@ -1,128 +1,161 @@
-import { db, nowIso } from "../db/db.js";
+import { client } from "../db/db.postgres.js";
+import { nowIso } from "../db/db.js";
 
 export const CatalogModel = {
   // ─── Product Follow-ups ───
-  listProductFollowups(productId) {
-    return db.prepare("SELECT * FROM catalog_product_followups WHERE product_id = ? ORDER BY created_at DESC").all(productId);
+
+  async listProductFollowups(productId) {
+    const result = await client.query(
+      "SELECT * FROM catalog_product_followups WHERE product_id = $1 ORDER BY created_at DESC",
+      [productId]
+    );
+    return result.rows;
   },
 
-  addProductFollowup(productId, message) {
-    db.prepare("INSERT INTO catalog_product_followups (product_id, message, created_at) VALUES (?, ?, ?)")
-      .run(productId, message, nowIso());
+
+  async addProductFollowup(productId, message) {
+    await client.query(
+      "INSERT INTO catalog_product_followups (product_id, message, created_at) VALUES ($1, $2, $3)",
+      [productId, message, nowIso()]
+    );
     return this.listProductFollowups(productId);
   },
 
-  deleteProductFollowup(id) {
-    return db.prepare("DELETE FROM catalog_product_followups WHERE id = ?").run(id).changes > 0;
+
+  async deleteProductFollowup(id) {
+    const result = await client.query(
+      "DELETE FROM catalog_product_followups WHERE id = $1",
+      [id]
+    );
+    return result.rowCount > 0;
   },
   // ─── Catalogs ───
 
-  listCatalogs() {
-    return db.prepare("SELECT * FROM catalogs ORDER BY ativo DESC, datetime(created_at) DESC").all();
-  },
 
-  getCatalog(id) {
-    return db.prepare("SELECT * FROM catalogs WHERE id = ?").get(id);
-  },
-
-  createCatalog({ nome, mes_referencia }) {
-    if (!nome || !mes_referencia) throw new Error("Nome e mês de referência são obrigatórios");
-    const stmt = db.prepare(
-      "INSERT INTO catalogs (nome, mes_referencia, ativo, created_at) VALUES ($nome, $mes, 1, $now)"
+  async listCatalogs() {
+    const result = await client.query(
+      "SELECT * FROM catalogs ORDER BY ativo DESC, created_at DESC"
     );
-    stmt.run({ $nome: nome, $mes: mes_referencia, $now: nowIso() });
-    const id = db.prepare("SELECT last_insert_rowid() as id").get().id;
-    return this.getCatalog(id);
+    return result.rows;
   },
 
-  updateCatalog(id, data) {
-    const cat = this.getCatalog(id);
+
+  async getCatalog(id) {
+    const result = await client.query(
+      "SELECT * FROM catalogs WHERE id = $1",
+      [id]
+    );
+    return result.rows[0] || null;
+  },
+
+
+  async createCatalog({ nome, mes_referencia }) {
+    if (!nome || !mes_referencia) throw new Error("Nome e mês de referência são obrigatórios");
+    const result = await client.query(
+      "INSERT INTO catalogs (nome, mes_referencia, ativo, created_at) VALUES ($1, $2, 1, $3) RETURNING *",
+      [nome, mes_referencia, nowIso()]
+    );
+    return result.rows[0];
+  },
+
+
+  async updateCatalog(id, data) {
+    const cat = await this.getCatalog(id);
     if (!cat) return null;
     const nome = data.nome ?? cat.nome;
     const mes = data.mes_referencia ?? cat.mes_referencia;
     const termino = data.data_termino ?? cat.data_termino;
     const ativo = data.ativo !== undefined ? (data.ativo ? 1 : 0) : cat.ativo;
-    db.prepare(
-      "UPDATE catalogs SET nome=$nome, mes_referencia=$mes, data_termino=$termino, ativo=$ativo WHERE id=$id"
-    ).run({ $nome: nome, $mes: mes, $termino: termino, $ativo: ativo, $id: id });
+    await client.query(
+      "UPDATE catalogs SET nome=$1, mes_referencia=$2, data_termino=$3, ativo=$4 WHERE id=$5",
+      [nome, mes, termino, ativo, id]
+    );
     return this.getCatalog(id);
   },
 
-  closeCatalog(id) {
-    const cat = this.getCatalog(id);
+
+  async closeCatalog(id) {
+    const cat = await this.getCatalog(id);
     if (!cat) return null;
     const now = nowIso().slice(0, 10); // YYYY-MM-DD
-    db.prepare("UPDATE catalogs SET ativo=0, data_termino=$termino WHERE id=$id").run({ $termino: now, $id: id });
+    await client.query(
+      "UPDATE catalogs SET ativo=0, data_termino=$1 WHERE id=$2",
+      [now, id]
+    );
     return this.getCatalog(id);
   },
 
-  deleteCatalog(id) {
-    const r = db.prepare("DELETE FROM catalogs WHERE id = ?").run(id);
-    return r.changes > 0;
+
+  async deleteCatalog(id) {
+    const result = await client.query(
+      "DELETE FROM catalogs WHERE id = $1",
+      [id]
+    );
+    return result.rowCount > 0;
   },
 
-  // ─── Products ───
+  // ─── Products (PostgreSQL) ───
 
-  listProducts(catalogId) {
-    return db.prepare("SELECT * FROM catalog_products WHERE catalog_id = ? ORDER BY modelo ASC").all(catalogId);
+  async listProducts(catalogId) {
+    const result = await client.query(
+      "SELECT * FROM catalog_products WHERE catalog_id = $1 ORDER BY modelo ASC",
+      [catalogId]
+    );
+    return result.rows;
   },
 
-  getProduct(id) {
-    return db.prepare("SELECT * FROM catalog_products WHERE id = ?").get(id);
+  async getProduct(id) {
+    const result = await client.query(
+      "SELECT * FROM catalog_products WHERE id = $1",
+      [id]
+    );
+    return result.rows[0] || null;
   },
 
-  upsertProduct(catalogId, payload) {
+  async upsertProduct(catalogId, payload) {
     const modelo = (payload.modelo || "").trim();
     if (!modelo) throw new Error("Modelo é obrigatório");
-
-    const existing = db.prepare(
-      "SELECT * FROM catalog_products WHERE catalog_id = ? AND lower(modelo) = lower(?)"
-    ).get(catalogId, modelo);
-
-    const data = {
-      $catalog_id: catalogId,
-      $tipo: payload.tipo || "scooter",
-      $modelo: modelo,
-      $nome: payload.nome || "",
-      $bateria: payload.bateria || "",
-      $motor: payload.motor || "",
-      $pneus: payload.pneus || "",
-      $velocidade: payload.velocidade || "",
-      $autonomia: payload.autonomia || "",
-      $tempo_carga: payload.tempo_carga || "",
-      $carregador: payload.carregador || "",
-      $impermeabilidade: payload.impermeabilidade || "",
-      $peso: payload.peso || "",
-      $estoque: payload.estoque ?? 0,
-      $extras: payload.extras || "",
-      $now: nowIso(),
-    };
-
-    if (existing) {
-      db.prepare(`
-        UPDATE catalog_products SET
-          tipo=$tipo, nome=$nome, bateria=$bateria, motor=$motor, pneus=$pneus,
-          velocidade=$velocidade, autonomia=$autonomia, tempo_carga=$tempo_carga,
-          carregador=$carregador, impermeabilidade=$impermeabilidade, peso=$peso,
-          estoque=$estoque, extras=$extras
-        WHERE id=$id
-      `).run({ ...data, $id: existing.id });
-      return { ...this.getProduct(existing.id), _updated: true };
+    // Verifica se já existe
+    const existing = await client.query(
+      "SELECT * FROM catalog_products WHERE catalog_id = $1 AND lower(modelo) = lower($2)",
+      [catalogId, modelo]
+    );
+    const now = nowIso();
+    if (existing.rows[0]) {
+      await client.query(
+        `UPDATE catalog_products SET
+          tipo=$1, nome=$2, bateria=$3, motor=$4, pneus=$5,
+          velocidade=$6, autonomia=$7, tempo_carga=$8, carregador=$9,
+          impermeabilidade=$10, peso=$11, estoque=$12, extras=$13
+        WHERE id=$14`,
+        [
+          payload.tipo || "scooter", payload.nome || "", payload.bateria || "", payload.motor || "",
+          payload.pneus || "", payload.velocidade || "", payload.autonomia || "", payload.tempo_carga || "",
+          payload.carregador || "", payload.impermeabilidade || "", payload.peso || "", payload.estoque ?? 0,
+          payload.extras || "", existing.rows[0].id
+        ]
+      );
+      return { ...(await this.getProduct(existing.rows[0].id)), _updated: true };
     } else {
-      db.prepare(`
-        INSERT INTO catalog_products
+      const result = await client.query(
+        `INSERT INTO catalog_products
           (catalog_id, tipo, modelo, nome, bateria, motor, pneus, velocidade, autonomia,
            tempo_carga, carregador, impermeabilidade, peso, estoque, extras, created_at)
-        VALUES ($catalog_id, $tipo, $modelo, $nome, $bateria, $motor, $pneus, $velocidade,
-                $autonomia, $tempo_carga, $carregador, $impermeabilidade, $peso, $estoque, $extras, $now)
-      `).run(data);
-      const id = db.prepare("SELECT last_insert_rowid() as id").get().id;
-      return { ...this.getProduct(id), _new: true };
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        RETURNING *`,
+        [
+          catalogId, payload.tipo || "scooter", modelo, payload.nome || "", payload.bateria || "",
+          payload.motor || "", payload.pneus || "", payload.velocidade || "", payload.autonomia || "",
+          payload.tempo_carga || "", payload.carregador || "", payload.impermeabilidade || "", payload.peso || "",
+          payload.estoque ?? 0, payload.extras || "", now
+        ]
+      );
+      return { ...(await this.getProduct(result.rows[0].id)), _new: true };
     }
   },
 
-  updateProduct(id, data) {
-    const prod = this.getProduct(id);
+  async updateProduct(id, data) {
+    const prod = await this.getProduct(id);
     if (!prod) return null;
     const fields = ["tipo", "modelo", "nome", "bateria", "motor", "pneus", "velocidade",
       "autonomia", "tempo_carga", "carregador", "impermeabilidade", "peso", "estoque", "extras"];
@@ -130,32 +163,36 @@ export const CatalogModel = {
     for (const f of fields) {
       if (data[f] !== undefined) merged[f] = data[f];
     }
-    db.prepare(`
-      UPDATE catalog_products SET
-        tipo=$tipo, modelo=$modelo, nome=$nome, bateria=$bateria, motor=$motor, pneus=$pneus,
-        velocidade=$velocidade, autonomia=$autonomia, tempo_carga=$tempo_carga,
-        carregador=$carregador, impermeabilidade=$impermeabilidade, peso=$peso,
-        estoque=$estoque, extras=$extras
-      WHERE id=$id
-    `).run({
-      $tipo: merged.tipo, $modelo: merged.modelo, $nome: merged.nome, $bateria: merged.bateria,
-      $motor: merged.motor, $pneus: merged.pneus, $velocidade: merged.velocidade,
-      $autonomia: merged.autonomia, $tempo_carga: merged.tempo_carga, $carregador: merged.carregador,
-      $impermeabilidade: merged.impermeabilidade, $peso: merged.peso, $estoque: merged.estoque,
-      $extras: merged.extras, $id: id,
-    });
-    return this.getProduct(id);
+    await client.query(
+      `UPDATE catalog_products SET
+        tipo=$1, modelo=$2, nome=$3, bateria=$4, motor=$5, pneus=$6,
+        velocidade=$7, autonomia=$8, tempo_carga=$9, carregador=$10,
+        impermeabilidade=$11, peso=$12, estoque=$13, extras=$14
+      WHERE id=$15`,
+      [
+        merged.tipo, merged.modelo, merged.nome, merged.bateria, merged.motor, merged.pneus,
+        merged.velocidade, merged.autonomia, merged.tempo_carga, merged.carregador,
+        merged.impermeabilidade, merged.peso, merged.estoque, merged.extras, id
+      ]
+    );
+    return await this.getProduct(id);
   },
 
-  deleteProduct(id) {
-    const r = db.prepare("DELETE FROM catalog_products WHERE id = ?").run(id);
-    return r.changes > 0;
+  async deleteProduct(id) {
+    const result = await client.query(
+      "DELETE FROM catalog_products WHERE id = $1",
+      [id]
+    );
+    return result.rowCount > 0;
   },
 
-  updateStock(id, estoque) {
-    const prod = this.getProduct(id);
+  async updateStock(id, estoque) {
+    const prod = await this.getProduct(id);
     if (!prod) return null;
-    db.prepare("UPDATE catalog_products SET estoque = ? WHERE id = ?").run(estoque, id);
-    return this.getProduct(id);
+    await client.query(
+      "UPDATE catalog_products SET estoque = $1 WHERE id = $2",
+      [estoque, id]
+    );
+    return await this.getProduct(id);
   },
 };

@@ -105,7 +105,9 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
               </div>
               <div>
                 <div className="text-xl font-semibold flex items-center gap-2">
-                  Todos os Leads
+                  {filterUf
+                    ? `Leads de ${filterUf}`
+                    : "Todos os Leads"}
                   <span className="text-sm font-normal text-zinc-500">
                     · {total} {total === 1 ? "lead" : "leads"}
                   </span>
