@@ -12,6 +12,7 @@ export default defineConfig({
       "/clients": "http://localhost:8000",
       "/import": "http://localhost:8000",
       "/catalogs": "http://localhost:8000",
+      "/sellers": "http://localhost:8000",
     },
   },
   build: {
