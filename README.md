@@ -5,7 +5,7 @@ Projeto monorepo:
 - **client/** (frontend React + Tailwind)
 - Importa planilha **.xlsx**, lista por **estado (UF)**, CRUD, status, catálogo de produtos
 
-> Banco: **Neon.tech/PostgreSQL** (cloud, grátis para dev). Não usa mais SQLite.
+> Banco: **Neon.tech/PostgreSQL** (cloud, grátis para dev).
 
 ## Requisitos
 - **Bun** instalado (Windows/PowerShell):
