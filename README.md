@@ -20,18 +20,51 @@ Projeto monorepo:
 2. Crie um banco PostgreSQL e copie a string de conexão (ex: `postgres://user:pass@host/db`)
 3. Crie um arquivo `.env` na pasta `server/` com:
    ```env
-   DATABASE_URL=postgres://user:pass@host/db
+   DATABASE_URL=postgresql://neondb_owner:npg_i0o6kjgFABrT@ep-twilight-cell-a8wbr2ka-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
    ```
+   Ou copie o arquivo `.env.example` e renomeie para `.env`.
 
-## Rodar o Projeto
-1. Abra a pasta `leads_crm_js_mvc` no VS Code
-2. No Terminal (PowerShell), rode:
+
+## Instalação e Rodando o Projeto
+1. Clone o repositório:
    ```powershell
+   git clone <url-do-repo>
+   cd leads_crm_js_mvc
+   ```
+2. Instale as dependências do backend e frontend:
+   ```powershell
+   cd server
    bun install
+   cd ../client
+   bun install
+   cd ..
+   ```
+3. Inicie o backend:
+   ```powershell
+   cd server
    bun run dev
    ```
+4. Em outro terminal, inicie o frontend:
+   ```powershell
+   cd client
+   bun run dev
+   ```
+
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
+---
+
+## Checklist para rodar em qualquer máquina
+- [ ] Instalar Bun
+- [ ] Clonar o repositório
+- [ ] Criar `.env` na pasta `server` com sua string do Neon (ou copiar `.env.example`)
+- [ ] Instalar dependências em `server` e `client`
+- [ ] Rodar backend e frontend em terminais separados
+
+---
+
+## Dica de segurança
+Nunca suba seu `.env` para o GitHub. Use sempre `.env.example` para compartilhar o formato.
 
 ## Importar Excel
 No app (Frontend), clique em **Importar .xlsx**.
