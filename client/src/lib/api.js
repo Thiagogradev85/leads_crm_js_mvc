@@ -1,3 +1,34 @@
+export async function updateSeller(id, payload) {
+  const r = await fetch(`${API}/sellers/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function deleteSeller(id) {
+  const r = await fetch(`${API}/sellers/${id}`, { method: "DELETE" });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+export async function createSeller(payload) {
+  const r = await fetch(`${API}/sellers`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+// ─── Sellers ───
+export async function listSellers() {
+  const r = await fetch(`${API}/sellers`);
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 export async function getTotalLeads() {
   const r = await fetch(`${API}/clients/total`);
   if (!r.ok) throw new Error(await r.text());

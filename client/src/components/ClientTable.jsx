@@ -27,7 +27,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
           {loading && <RefreshCw size={14} className="text-emerald-400 animate-spin ml-2" />}
         </div>
       </div>
-      <div className="overflow-auto">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
         <table className="min-w-[1100px] w-full text-sm">
           <thead>
             <tr className="border-b border-zinc-800/60 text-sm uppercase tracking-wider text-zinc-400">
@@ -56,6 +56,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
               )}
               <th className="px-4 py-3 text-left font-semibold w-[180px]">WhatsApp</th>
               <th className="px-4 py-3 text-left font-semibold w-[120px]">Email</th>
+              <th className="px-4 py-3 text-left font-semibold">Vendedor</th>
               <th className="px-4 py-3 text-left font-semibold">Status</th>
               <th className="px-4 py-3 text-left font-semibold">Ações</th>
             </tr>
@@ -145,6 +146,12 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                       <Mail size={13} className="text-zinc-700" /> —
                     </span>
                   )}
+                </td>
+                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                  {/* Dropdown de vendedor vazio */}
+                  <select className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 rounded px-2 py-1 min-w-[100px]">
+                    <option value="">—</option>
+                  </select>
                 </td>
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <StatusBadge status={c.status} onChange={(val) => onStatusChange(c.id, val)} />

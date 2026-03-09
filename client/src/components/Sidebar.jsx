@@ -13,7 +13,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
   }, []);
 
   return (
-    <aside className="w-72 border-r border-zinc-800/80 flex flex-col bg-zinc-950/80 backdrop-blur-sm">
+    <aside className="w-60 border-r border-zinc-800/80 flex flex-col bg-zinc-950/80 backdrop-blur-sm">
       {/* Logo */}
       <div
         className="p-5 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors"
@@ -41,6 +41,7 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
         </div>
       </div>
 
+
       {/* Catalog link */}
       <div
         className="px-5 py-3 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors group"
@@ -49,6 +50,17 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
         <div className="flex items-center gap-2 text-xs">
           <BookOpen size={14} className="text-amber-500 group-hover:text-amber-400 transition-colors" />
           <span className="text-zinc-500 group-hover:text-amber-300 transition-colors font-medium">Catálogo de Produtos</span>
+        </div>
+      </div>
+
+      {/* Sellers link */}
+      <div
+        className="px-5 py-3 border-b border-zinc-800/80 cursor-pointer hover:bg-zinc-900/50 transition-colors group"
+        onClick={() => navigate("/sellers")}
+      >
+        <div className="flex items-center gap-2 text-xs">
+          <Users size={14} className="text-sky-500 group-hover:text-sky-400 transition-colors" />
+          <span className="text-zinc-500 group-hover:text-sky-300 transition-colors font-medium">Vendedores</span>
         </div>
       </div>
 
@@ -107,32 +119,31 @@ export default function Sidebar({ states, uf, onSelectUf, onImport }) {
               </span>
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Import section - logo abaixo dos estados */}
-      <div className="px-5 pb-4 pt-2">
-        <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-500 font-medium mb-2">
-          <UploadCloud size={14} />
-          <span>Importar Excel</span>
-        </label>
-        <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-zinc-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group w-full">
-          <FileSpreadsheet
-            size={18}
-            className="text-zinc-500 group-hover:text-emerald-400 transition-colors"
-          />
-          <span className="text-sm text-zinc-400 group-hover:text-emerald-300 transition-colors">
-            Selecionar .xlsx
-          </span>
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={(e) => e.target.files?.[0] && onImport(e.target.files[0])}
-            className="hidden"
-          />
-        </label>
-        <div className="text-[10px] text-zinc-600 mt-1 text-center">
-          Colunas: Loja, Cidade, UF, WhatsApp…
+          {/* Import section - logo abaixo dos estados */}
+          <div className="pt-4">
+            <label className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-500 font-medium mb-2">
+              <UploadCloud size={14} />
+              <span>Importar Excel</span>
+            </label>
+            <label className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-zinc-700 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all cursor-pointer group w-full">
+              <FileSpreadsheet
+                size={18}
+                className="text-zinc-500 group-hover:text-emerald-400 transition-colors"
+              />
+              <span className="text-sm text-zinc-400 group-hover:text-emerald-300 transition-colors">
+                Selecionar .xlsx
+              </span>
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={(e) => e.target.files?.[0] && onImport(e.target.files[0])}
+                className="hidden"
+              />
+            </label>
+            <div className="text-[10px] text-zinc-600 mt-1 text-center">
+              Colunas: Loja, Cidade, UF, WhatsApp…
+            </div>
+          </div>
         </div>
       </div>
     </aside>

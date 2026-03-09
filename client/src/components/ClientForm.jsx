@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { listSellers } from "../lib/api";
 import { Plus, Save, Store, MapPin, Globe, MessageCircle, Phone, Mail, Star, Thermometer } from "lucide-react";
 import { STATUS } from "../lib/constants";
 
@@ -18,6 +19,11 @@ const EMPTY_FORM = {
 
 export default function ClientForm({ onSave, initialData }) {
   const [form, setForm] = useState(initialData || EMPTY_FORM);
+  const [sellers, setSellers] = useState([]);
+
+  useEffect(() => {
+    listSellers().then(setSellers).catch(() => setSellers([]));
+  }, []);
 
   async function handleSave() {
     const payload = { ...form, uf: (form.uf || "").toUpperCase() };
@@ -77,6 +83,23 @@ export default function ClientForm({ onSave, initialData }) {
               />
             </div>
           ))}
+          {/* Dropdown de vendedor */}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-zinc-500 mb-1.5 font-medium">
+              <Star size={12} />
+              Vendedor responsável
+            </label>
+            <select
+              value={form.vendedor_id || ""}
+              onChange={e => setForm({ ...form, vendedor_id: e.target.value ? Number(e.target.value) : null })}
+              className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700/50 text-sm text-white focus:outline-none focus:border-emerald-500/50 appearance-none pr-8 cursor-pointer w-full"
+            >
+              <option value="">Selecione...</option>
+              {sellers.map(s => (
+                <option key={s.id} value={s.id}>{s.nome}</option>
+              ))}
+            </select>
+          </div>
           <div className="md:col-span-3">
             <label className="flex items-center gap-1.5 text-xs text-zinc-500 mb-1.5 font-medium">
               <MapPin size={12} />
