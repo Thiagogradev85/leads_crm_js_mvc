@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { Search, Filter, ChevronDown, Users, MapPin, Store, Building2 } from "lucide-react";
-import { listClients, updateClient, deleteClient } from "../lib/api";
+import { listClients, updateClient, deleteClient, listSellers } from "../lib/api";
 import { STATUS } from "../lib/constants";
 import ClientTable from "../components/ClientTable";
 
@@ -19,6 +19,19 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [sortDir, setSortDir] = useState("asc");     // "asc" | "desc"
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [sellers, setSellers] = useState([]);
+  // Carrega vendedores uma vez
+  useEffect(() => {
+    async function fetchSellers() {
+      try {
+        const data = await listSellers();
+        setSellers(data);
+      } catch {
+        setSellers([]);
+      }
+    }
+    fetchSellers();
+  }, []);
 
 
   function toggleSort(key) {
@@ -91,6 +104,12 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   function goToPage(p) {
     if (p < 1 || p > totalPages) return;
     setPage(p);
+  }
+
+  // Handler para troca de vendedor
+  async function onSellerChange(id, vendedor_id) {
+    await updateClient(id, { vendedor_id });
+    await refreshClients();
   }
 
   return (
@@ -220,6 +239,8 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
           sortDir={sortDir}
           onSort={toggleSort}
           onStatusChange={onStatusChange}
+          onSellerChange={onSellerChange}
+          sellers={sellers}
           onDelete={onDelete}
         />
 

@@ -14,26 +14,37 @@ export const ClientModel = {
     },
   async list({ uf, status, q, page = 1, pageSize = 20 } = {}) {
     let sql = `SELECT c.*, s.nome as vendedor_nome FROM clients c LEFT JOIN sellers s ON c.vendedor_id = s.id WHERE 1=1`;
+    let countSql = `SELECT COUNT(*) as total FROM clients c WHERE 1=1`;
     const params = [];
+    const countParams = [];
     let idx = 1;
+    let countIdx = 1;
     if (uf) {
       sql += ` AND c.uf = $${idx}`;
+      countSql += ` AND c.uf = $${countIdx}`;
       params.push(uf.toUpperCase());
+      countParams.push(uf.toUpperCase());
       idx++;
+      countIdx++;
     }
     if (status) {
       sql += ` AND c.status = $${idx}`;
+      countSql += ` AND c.status = $${countIdx}`;
       params.push(status);
+      countParams.push(status);
       idx++;
+      countIdx++;
     }
     if (q) {
       sql += ` AND (lower(c.loja) LIKE $${idx} OR lower(c.cidade) LIKE $${idx} OR lower(c.email) LIKE $${idx} OR lower(c.whatsapp) LIKE $${idx})`;
+      countSql += ` AND (lower(c.loja) LIKE $${countIdx} OR lower(c.cidade) LIKE $${countIdx} OR lower(c.email) LIKE $${countIdx} OR lower(c.whatsapp) LIKE $${countIdx})`;
       params.push(`%${q.toLowerCase()}%`);
+      countParams.push(`%${q.toLowerCase()}%`);
       idx++;
+      countIdx++;
     }
     // Conta o total antes do LIMIT
-    const countSql = `SELECT COUNT(*) as total FROM clients c WHERE 1=1` + sql.slice(sql.indexOf('AND'));
-    const countResult = await client.query(countSql, params);
+    const countResult = await client.query(countSql, countParams);
     const total = Number(countResult.rows[0]?.total || 0);
 
     // Paginação

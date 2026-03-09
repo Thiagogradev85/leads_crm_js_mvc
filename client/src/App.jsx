@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { getStates, importExcel } from "./lib/api.js";
 import Sidebar from "./components/Sidebar";
 import ClientsPage from "./pages/ClientsPage";
@@ -40,6 +40,8 @@ export default function App() {
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <Routes>
+                    {/* Redireciona /all-leads/sellers para /sellers */}
+                    <Route path="/all-leads/sellers" element={<Navigate to="/sellers" replace />} />
           <Route
             path="/"
             element={<AllLeadsPage onRefreshStates={refreshStates} uf={uf} />}

@@ -36,7 +36,11 @@ export default function ClientsPage({ uf, onRefreshStates }) {
   async function refreshSellers() {
     try {
       const data = await listSellers();
-      setSellers(data);
+      setSellers(
+        Array.isArray(data)
+          ? data
+          : data?.vendedores || data?.sellers || []
+      );
     } catch {
       setSellers([]);
     }

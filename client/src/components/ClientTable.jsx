@@ -15,8 +15,10 @@ function SortIcon({ column, sortKey, sortDir }) {
     : <ArrowDown size={12} className="text-emerald-400" />;
 }
 
-export default function ClientTable({ clients, loading, uf, showUf, sortKey, sortDir, onSort, onStatusChange, onDelete }) {
+export default function ClientTable({ clients, loading, uf, showUf, sortKey, sortDir, onSort, onStatusChange, onSellerChange, sellers = [], onDelete }) {
   const navigate = useNavigate();
+
+  console.log("sellers no ClientTable:", sellers);
 
   return (
     <section className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 backdrop-blur-sm overflow-hidden">
@@ -148,10 +150,20 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                   )}
                 </td>
                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                  {/* Dropdown de vendedor vazio */}
-                  <select className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 rounded px-2 py-1 min-w-[100px]">
+                  <select
+                    className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 rounded px-2 py-1 min-w-[100px]"
+                    value={c.vendedor_id || ''}
+                    onChange={e => onSellerChange && onSellerChange(c.id, e.target.value ? Number(e.target.value) : null)}
+                  >
                     <option value="">—</option>
+                    {sellers.map(s => (
+                      <option key={s.id} value={s.id}>{s.nome}</option>
+                    ))}
                   </select>
+                  <span className="ml-2 text-xs text-zinc-400">
+                    {/* Mostra o nome do vendedor selecionado, se houver */}
+                    {sellers.find(s => String(s.id) === String(c.vendedor_id))?.nome || c.vendedor_nome || ''}
+                  </span>
                 </td>
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <StatusBadge status={c.status} onChange={(val) => onStatusChange(c.id, val)} />
