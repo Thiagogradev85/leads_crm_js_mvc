@@ -23,25 +23,28 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
   console.log("sellers no ClientTable:", sellers);
   console.log("statusList no ClientTable (normalizado):", normalizedStatusList);
 
+  // Permite customização via props para AllLeadsPage
+  const tableClassName = typeof window !== "undefined" && window.tableClassName ? window.tableClassName : "min-w-[2200px] w-max text-lg";
+  const wrapperStyle = typeof window !== "undefined" && window.wrapperStyle ? window.wrapperStyle : { maxHeight: '80vh', minHeight: '400px', position: 'relative', overflowX: 'scroll', overflowY: 'auto' };
   return (
     <section className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 backdrop-blur-sm overflow-hidden">
       <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800/60">
-        <div className="flex items-center gap-2 text-sm">
-          <Hash size={14} className="text-zinc-500" />
+        <div className="flex items-center gap-2 text-lg">
+          <Hash size={18} className="text-zinc-500" />
           <span className="text-zinc-400">{clients.length} registros</span>
-          {loading && <RefreshCw size={14} className="text-emerald-400 animate-spin ml-2" />}
+          {loading && <RefreshCw size={18} className="text-emerald-400 animate-spin ml-2" />}
         </div>
         <button
           onClick={() => navigate("/client/new")}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+          className="flex items-center gap-2 px-5 py-3 rounded-lg text-lg font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
         >
-          <Plus size={16} />
+          <Plus size={20} />
           Novo Cliente
         </button>
       </div>
-      <div className="overflow-x-auto scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 scrollbar scrollbar-h-4" style={{ maxHeight: '70vh', minHeight: '350px', position: 'relative' }}>
-        <table className="min-w-[1400px] w-full text-base">
-          <thead>
+      <div className="table-scroll" style={wrapperStyle}>
+        <table className={tableClassName}>
+          <thead className="bg-zinc-900 sticky top-0 z-10">
             <tr className="border-b border-zinc-800/60 text-base uppercase tracking-wider text-zinc-300">
               <th className="px-4 py-4 text-left font-semibold">
                 {onSort ? (
@@ -149,31 +152,37 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     <a
                       href={`mailto:${c.email}`}
                       className="flex items-center gap-1.5 text-zinc-300 hover:text-sky-300 transition-colors"
+                      style={{ fontSize: '1rem' }}
                     >
-                      <Mail size={13} className="text-zinc-500" />
-                      <span className="truncate max-w-[80px]">{c.email}</span>
+                      <Mail size={15} className="text-zinc-500" />
+                      <span style={{ whiteSpace: 'nowrap', fontSize: '1rem' }}>{c.email}</span>
                     </a>
                   ) : (
-                    <span className="text-zinc-600 flex items-center gap-1.5">
-                      <Mail size={13} className="text-zinc-700" /> —
+                    <span className="text-zinc-600 flex items-center gap-1.5" style={{ fontSize: '1rem' }}>
+                      <Mail size={15} className="text-zinc-700" /> —
                     </span>
                   )}
                 </td>
                 <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
                   <select
-                    className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 rounded px-2 py-1 min-w-[100px]"
-                    value={c.vendedor_id || ''}
-                    onChange={e => onSellerChange && onSellerChange(c.id, e.target.value ? Number(e.target.value) : null)}
+                    className="bg-zinc-900 border border-zinc-700 text-base text-zinc-300 rounded px-2 py-2 min-w-[120px]"
+                    value={c.vendedor_id || ""}
+                    onChange={e =>
+                      onSellerChange && onSellerChange(c.id, e.target.value ? Number(e.target.value) : null)
+                    }
+                    style={{ fontSize: "1rem" }}
                   >
                     <option value="">—</option>
                     {sellers.map(s => (
-                      <option key={s.id} value={s.id}>{s.nome}</option>
+                      <option key={s.id} value={s.id} style={{ fontSize: "1rem" }}>
+                        {s.nome}
+                      </option>
                     ))}
                   </select>
                   {/* Removido nome duplicado do vendedor ao lado do dropdown */}
                 </td>
                 <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
-                  <StatusBadge status={c.status} statusId={c.status_id} statusList={normalizedStatusList} onChange={(val) => onStatusChange(c.id, val)} />
+                  <StatusBadge status={c.status} statusId={c.status_id} statusList={normalizedStatusList} onChange={(val) => onStatusChange(c.id, val)} fontSize={"1rem"} />
                 </td>
                 <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
@@ -203,7 +212,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
             ))}
             {!clients.length && (
               <tr>
-                <td className="px-4 py-12 text-center text-base" colSpan={showUf ? 7 : 6}>
+                <td className="px-4 py-12 text-center text-base" colSpan={showUf ? 8 : 7}>
                   <EmptyState
                     title={`Nenhum lead encontrado para ${uf}`}
                     subtitle="Importe um Excel ou adicione manualmente"

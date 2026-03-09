@@ -107,8 +107,8 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     await refreshClients();
   }
 
-  async function onStatusChange(id, value) {
-    await updateClient(id, { status: value });
+  async function onStatusChange(id, status_id) {
+    await updateClient(id, { status_id });
     await refreshClients();
   }
 
@@ -256,6 +256,8 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
           sellers={sellers}
           statusList={statusList}
           onDelete={onDelete}
+          tableClassName="min-w-[2200px] w-full text-lg"
+          wrapperStyle={{ maxHeight: '80vh', minHeight: '400px', position: 'relative', overflowX: 'auto', scrollbarWidth: 'auto', WebkitOverflowScrolling: 'touch' }}
         />
 
         {/* Pagination Controls */}

@@ -11,17 +11,18 @@ export default function StatusBadge({ status, statusId, statusList = [], onChang
 
   if (onChange) {
     return (
-      <span className="inline-flex items-center px-2.5 py-1 rounded-full border text-xs font-medium shadow-sm bg-zinc-800 border-zinc-700">
+      <span className="inline-flex items-center px-2.5 py-1 rounded-full border font-medium shadow-sm bg-zinc-800 border-zinc-700" style={{ fontSize: (typeof fontSize !== 'undefined' ? fontSize : '1rem') }}>
         <select
           value={currentId}
           onChange={e => onChange(Number(e.target.value))}
-          className="bg-transparent outline-none cursor-pointer text-xs text-inherit"
+          className="bg-transparent outline-none cursor-pointer text-base text-inherit"
+          style={{ fontSize: (typeof fontSize !== 'undefined' ? fontSize : '1rem'), padding: '0.5rem' }}
         >
           {statusList.map((s, idx) => {
             const id = getId(s, idx);
             const label = getLabel(s);
             return (
-              <option key={id} value={id} className="bg-zinc-900 text-white">
+              <option key={id} value={id} className="bg-zinc-900 text-white" style={{ fontSize: (typeof fontSize !== 'undefined' ? fontSize : '1rem') }}>
                 {label}
               </option>
             );
