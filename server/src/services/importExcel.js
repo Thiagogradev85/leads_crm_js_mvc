@@ -2,7 +2,7 @@
 import XLSX from "xlsx";
 import { ClientModel } from "../models/ClientModel.js";
 
-const STATUSES = new Set(["prospeccao", "enviado", "respondeu", "nao_interessa", "pediu_catalogo"]);
+const STATUS_SET = new Set(["prospeccao", "enviado", "respondeu", "nao_interessa", "pediu_catalogo"]);
 
 function norm(v) {
   if (v === null || v === undefined) return "";
@@ -82,7 +82,7 @@ export async function importExcel(filePath) {
       payload.temperatura = norm(payload.temperatura);
 
       if (!payload.loja || !payload.uf) continue;
-      if (!STATUSES.has(payload.status)) payload.status = "prospeccao";
+      if (!STATUS_SET.has(payload.status)) payload.status = "prospeccao";
 
       // Upsert retorna _existed: true se atualizou, false se inseriu
       const result = await ClientModel.upsertByKey(payload);

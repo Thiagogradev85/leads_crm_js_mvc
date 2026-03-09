@@ -1,3 +1,12 @@
+// ─── Status ───
+export async function getStatus() {
+  const res = await fetch(`${API}/status`);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Erro ao buscar status: ${res.status} - ${text}`);
+  }
+  return res.json();
+}
 export async function updateSeller(id, payload) {
   const r = await fetch(`${API}/sellers/${id}`, {
     method: "PUT",

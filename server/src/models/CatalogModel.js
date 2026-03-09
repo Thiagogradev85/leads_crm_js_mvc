@@ -1,11 +1,11 @@
-import { client } from "../db/db.postgres.js";
-import { nowIso } from "../db/db.js";
+import pool from "../db/db.postgres.js";
+function nowIso() { return new Date().toISOString(); }
 
 export const CatalogModel = {
   // ─── Product Follow-ups ───
 
   async listProductFollowups(productId) {
-    const result = await client.query(
+    const result = await pool.query(
       "SELECT * FROM catalog_product_followups WHERE product_id = $1 ORDER BY created_at DESC",
       [productId]
     );
@@ -14,7 +14,7 @@ export const CatalogModel = {
 
 
   async addProductFollowup(productId, message) {
-    await client.query(
+    await pool.query(
       "INSERT INTO catalog_product_followups (product_id, message, created_at) VALUES ($1, $2, $3)",
       [productId, message, nowIso()]
     );
@@ -23,7 +23,7 @@ export const CatalogModel = {
 
 
   async deleteProductFollowup(id) {
-    const result = await client.query(
+    const result = await pool.query(
       "DELETE FROM catalog_product_followups WHERE id = $1",
       [id]
     );
@@ -33,7 +33,7 @@ export const CatalogModel = {
 
 
   async listCatalogs() {
-    const result = await client.query(
+    const result = await pool.query(
       "SELECT * FROM catalogs ORDER BY ativo DESC, created_at DESC"
     );
     return result.rows;
@@ -41,7 +41,7 @@ export const CatalogModel = {
 
 
   async getCatalog(id) {
-    const result = await client.query(
+    const result = await pool.query(
       "SELECT * FROM catalogs WHERE id = $1",
       [id]
     );
@@ -51,7 +51,7 @@ export const CatalogModel = {
 
   async createCatalog({ nome, mes_referencia }) {
     if (!nome || !mes_referencia) throw new Error("Nome e mês de referência são obrigatórios");
-    const result = await client.query(
+    const result = await pool.query(
       "INSERT INTO catalogs (nome, mes_referencia, ativo, created_at) VALUES ($1, $2, 1, $3) RETURNING *",
       [nome, mes_referencia, nowIso()]
     );
@@ -66,7 +66,7 @@ export const CatalogModel = {
     const mes = data.mes_referencia ?? cat.mes_referencia;
     const termino = data.data_termino ?? cat.data_termino;
     const ativo = data.ativo !== undefined ? (data.ativo ? 1 : 0) : cat.ativo;
-    await client.query(
+    await pool.query(
       "UPDATE catalogs SET nome=$1, mes_referencia=$2, data_termino=$3, ativo=$4 WHERE id=$5",
       [nome, mes, termino, ativo, id]
     );
@@ -78,7 +78,7 @@ export const CatalogModel = {
     const cat = await this.getCatalog(id);
     if (!cat) return null;
     const now = nowIso().slice(0, 10); // YYYY-MM-DD
-    await client.query(
+    await pool.query(
       "UPDATE catalogs SET ativo=0, data_termino=$1 WHERE id=$2",
       [now, id]
     );
@@ -87,7 +87,7 @@ export const CatalogModel = {
 
 
   async deleteCatalog(id) {
-    const result = await client.query(
+    const result = await pool.query(
       "DELETE FROM catalogs WHERE id = $1",
       [id]
     );
@@ -97,7 +97,7 @@ export const CatalogModel = {
   // ─── Products (PostgreSQL) ───
 
   async listProducts(catalogId) {
-    const result = await client.query(
+    const result = await pool.query(
       "SELECT * FROM catalog_products WHERE catalog_id = $1 ORDER BY modelo ASC",
       [catalogId]
     );
@@ -105,7 +105,7 @@ export const CatalogModel = {
   },
 
   async getProduct(id) {
-    const result = await client.query(
+    const result = await pool.query(
       "SELECT * FROM catalog_products WHERE id = $1",
       [id]
     );
@@ -116,13 +116,13 @@ export const CatalogModel = {
     const modelo = (payload.modelo || "").trim();
     if (!modelo) throw new Error("Modelo é obrigatório");
     // Verifica se já existe
-    const existing = await client.query(
+    const existing = await pool.query(
       "SELECT * FROM catalog_products WHERE catalog_id = $1 AND lower(modelo) = lower($2)",
       [catalogId, modelo]
     );
     const now = nowIso();
     if (existing.rows[0]) {
-      await client.query(
+      await pool.query(
         `UPDATE catalog_products SET
           tipo=$1, nome=$2, bateria=$3, motor=$4, pneus=$5,
           velocidade=$6, autonomia=$7, tempo_carga=$8, carregador=$9,
@@ -138,7 +138,7 @@ export const CatalogModel = {
       );
       return { ...(await this.getProduct(existing.rows[0].id)), _updated: true };
     } else {
-      const result = await client.query(
+      const result = await pool.query(
         `INSERT INTO catalog_products
           (catalog_id, tipo, modelo, nome, bateria, motor, pneus, velocidade, autonomia,
            tempo_carga, carregador, impermeabilidade, peso, estoque, extras, created_at, preco, suspensao, freio)
@@ -164,7 +164,7 @@ export const CatalogModel = {
     for (const f of fields) {
       if (data[f] !== undefined) merged[f] = data[f];
     }
-    await client.query(
+    await pool.query(
       `UPDATE catalog_products SET
         tipo=$1, modelo=$2, nome=$3, bateria=$4, motor=$5, pneus=$6,
         velocidade=$7, autonomia=$8, tempo_carga=$9, carregador=$10,
@@ -182,7 +182,7 @@ export const CatalogModel = {
   },
 
   async deleteProduct(id) {
-    const result = await client.query(
+    const result = await pool.query(
       "DELETE FROM catalog_products WHERE id = $1",
       [id]
     );
@@ -192,7 +192,7 @@ export const CatalogModel = {
   async updateStock(id, estoque) {
     const prod = await this.getProduct(id);
     if (!prod) return null;
-    await client.query(
+    await pool.query(
       "UPDATE catalog_products SET estoque = $1 WHERE id = $2",
       [estoque, id]
     );

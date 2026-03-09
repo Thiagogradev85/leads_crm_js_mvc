@@ -1,37 +1,69 @@
+
 import React, { useEffect, useState, useCallback } from "react";
 import { Search, Filter, ChevronDown, Plus, Building2 } from "lucide-react";
-import { listClients, updateClient, upsertClient, deleteClient, listSellers } from "../lib/api";
-import { STATUS } from "../lib/constants";
+import { listClients, updateClient, upsertClient, deleteClient, listSellers, getStatus } from "../lib/api";
+// import { STATUS } from "../lib/constants";
 import ClientTable from "../components/ClientTable";
 import ClientForm from "../components/ClientForm";
 
 export default function ClientsPage({ uf, onRefreshStates }) {
+  const [statusList, setStatusList] = useState([]);
+  // Buscar lista de status da API ao montar
+  useEffect(() => {
+    async function refreshStatus() {
+      try {
+        const data = await getStatus();
+        console.log("retorno status:", data);
+        const parsed = Array.isArray(data)
+          ? data
+          : data?.rows || data?.data || data?.statuses || data?.status || data?.results || [];
+        console.log("status parsed:", parsed);
+        setStatusList(parsed);
+      } catch (err) {
+        console.error("Erro ao carregar status:", err);
+        setStatusList([]);
+      }
+    }
+    refreshStatus();
+  }, []);
   const [clients, setClients] = useState([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
   const [sellers, setSellers] = useState([]);
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(""); // status_id
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-
-
+  const [sortKey, setSortKey] = useState("");
+  const [sortDir, setSortDir] = useState("asc");
+  const [editClient, setEditClient] = useState(null);
 
   // Função robusta para atualizar clientes e sincronizar paginação
-  const refreshClients = useCallback(async (newPage = page, newPageSize = pageSize) => {
-    if (!uf) return;
-    setLoading(true);
-    try {
-      const result = await listClients({ uf, status, q, page: newPage, pageSize: newPageSize });
-      setClients(result.rows || []);
-      setTotal(result.total || 0);
-      setPage(result.page || newPage);
-      setPageSize(result.pageSize || newPageSize);
-    } finally {
-      setLoading(false);
-    }
-  }, [uf, status, q, page, pageSize]);
+  const refreshClients = useCallback(
+    async (newPage = page, newPageSize = pageSize, newSortKey = sortKey, newSortDir = sortDir) => {
+      if (!uf) return;
+      setLoading(true);
+      try {
+        const result = await listClients({
+          uf,
+          status: status ? Number(status) : undefined, // sempre envia status_id
+          q,
+          page: newPage,
+          pageSize: newPageSize,
+          sortKey: newSortKey,
+          sortDir: newSortDir,
+        });
+        setClients(result.rows || []);
+        setTotal(result.total || 0);
+        setPage(result.page || newPage);
+        setPageSize(result.pageSize || newPageSize);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [uf, status, q, page, pageSize, sortKey, sortDir]
+  );
 
   async function refreshSellers() {
     try {
@@ -46,13 +78,11 @@ export default function ClientsPage({ uf, onRefreshStates }) {
     }
   }
 
-
-
   // Sempre que uf, status ou q mudar, volta para página 1
   useEffect(() => {
     setPage(1);
-    refreshClients(1).catch(console.error);
-  }, [uf, status, q, refreshClients]);
+    refreshClients(1, pageSize, sortKey, sortDir).catch(console.error);
+  }, [uf, status, q, sortKey, sortDir, refreshClients]);
 
   useEffect(() => {
     refreshSellers();
@@ -61,6 +91,7 @@ export default function ClientsPage({ uf, onRefreshStates }) {
   async function onSave(payload) {
     await upsertClient(payload);
     setShowForm(false);
+    setEditClient(null);
     onRefreshStates?.();
     await refreshClients();
   }
@@ -72,15 +103,19 @@ export default function ClientsPage({ uf, onRefreshStates }) {
     await refreshClients();
   }
 
-
-  async function onStatusChange(id, value) {
-    await updateClient(id, { status: value });
+  async function onStatusChange(id, status_id) {
+    await updateClient(id, { status_id });
     await refreshClients();
   }
 
   async function onSellerChange(id, vendedor_id) {
     await updateClient(id, { vendedor_id });
     await refreshClients();
+  }
+
+  async function handleEdit(client) {
+    setEditClient(client);
+    setShowForm(true);
   }
 
   const currentCount = clients.length;
@@ -125,9 +160,10 @@ export default function ClientsPage({ uf, onRefreshStates }) {
                 onChange={(e) => setStatus(e.target.value)}
                 className="pl-8 pr-8 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm text-white focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
               >
-                {STATUS.map((s) => (
-                  <option key={s.value} value={s.value} className="bg-zinc-900 text-white">
-                    {s.label}
+                <option value="">Todos os status</option>
+                {statusList.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-zinc-900 text-white">
+                    {s.name}
                   </option>
                 ))}
               </select>
@@ -156,15 +192,20 @@ export default function ClientsPage({ uf, onRefreshStates }) {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
-        {showForm && <ClientForm onSave={onSave} />}
+        {showForm && <ClientForm onSave={onSave} initialData={editClient} />}
         <ClientTable
           clients={clients}
           loading={loading}
           uf={uf}
           sellers={sellers}
+          statusList={statusList}
           onStatusChange={onStatusChange}
           onSellerChange={onSellerChange}
           onDelete={onDelete}
+          onSort={handleSort}
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onEdit={handleEdit}
         />
         {/* Paginação */}
         <div className="flex justify-end gap-2 mt-4">
@@ -183,4 +224,13 @@ export default function ClientsPage({ uf, onRefreshStates }) {
       </div>
     </>
   );
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
 }

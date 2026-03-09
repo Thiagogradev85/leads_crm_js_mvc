@@ -1,3 +1,4 @@
+import { StatusModel } from "../models/StatusModel.js";
 // (Removed invalid async total function here)
 import { ClientModel } from "../models/ClientModel.js";
 import { ObservationModel } from "../models/ObservationModel.js";
@@ -5,6 +6,14 @@ import { importExcel } from "../services/importExcel.js";
 import fs from "node:fs";
 
 export const ClientController = {
+      async listStatus(req, res) {
+        try {
+          const status = await StatusModel.list();
+          res.json(status);
+        } catch (e) {
+          res.status(500).json({ error: "Erro ao buscar status", details: String(e) });
+        }
+      },
     async total(req, res) {
       try {
         const total = await ClientModel.totalLeads();

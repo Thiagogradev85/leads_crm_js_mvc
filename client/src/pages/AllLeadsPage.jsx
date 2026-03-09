@@ -1,10 +1,17 @@
 
-import React, { useEffect, useState, useMemo } from "react";
-import { Search, Filter, ChevronDown, Users, MapPin, Store, Building2 } from "lucide-react";
-import { listClients, updateClient, deleteClient, listSellers } from "../lib/api";
-import { STATUS } from "../lib/constants";
-import ClientTable from "../components/ClientTable";
 
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Users,
+  Search,
+  MapPin,
+  ChevronDown,
+  Store,
+  Building2,
+  Filter
+} from "lucide-react";
+import { listClients, updateClient, deleteClient, listSellers, getStatus } from "../lib/api";
+import ClientTable from "../components/ClientTable";
 
 export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [clients, setClients] = useState([]);
@@ -20,6 +27,21 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [sellers, setSellers] = useState([]);
+  const [statusList, setStatusList] = useState([]);
+
+  // Carrega status da API uma vez
+  useEffect(() => {
+    async function refreshStatus() {
+      try {
+        const data = await getStatus();
+        setStatusList(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setStatusList([]);
+      }
+    }
+    refreshStatus();
+  }, []);
+
   // Carrega vendedores uma vez
   useEffect(() => {
     async function fetchSellers() {
@@ -33,7 +55,6 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     fetchSellers();
   }, []);
 
-
   function toggleSort(key) {
     if (sortKey === key) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -44,16 +65,13 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     setPage(1); // Reset to first page on sort change
   }
 
-
-  // Unique values for filter dropdowns (mantido apenas uma vez)
+  // Unique values for filter dropdowns
   const uniqueUfs = useMemo(() => [...new Set(clients.map((c) => c.uf).filter(Boolean))].sort(), [clients]);
   const uniqueLojas = useMemo(() => [...new Set(clients.map((c) => c.loja).filter(Boolean))].sort(), [clients]);
   const uniqueCidades = useMemo(() => [...new Set(clients.map((c) => c.cidade).filter(Boolean))].sort(), [clients]);
 
-
   async function refreshClients() {
     setLoading(true);
-    // Always send all filters to backend
     const { rows, total: totalCount, page: currentPage, pageSize: currentPageSize } = await listClients({
       uf: filterUf,
       status,
@@ -72,18 +90,15 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     setLoading(false);
   }
 
-
   useEffect(() => {
     refreshClients().catch(console.error);
     // eslint-disable-next-line
   }, [status, q, filterUf, filterLoja, filterCidade, page, pageSize, sortKey, sortDir]);
 
-
   // Atualiza filtro de UF quando propUf muda (ex: ao clicar na Sidebar)
   useEffect(() => {
     if (propUf !== undefined) setFilterUf(propUf);
   }, [propUf]);
-
 
   async function onDelete(id) {
     if (!confirm("Tem certeza que deseja deletar este cliente?")) return;
@@ -92,12 +107,10 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
     await refreshClients();
   }
 
-
   async function onStatusChange(id, value) {
     await updateClient(id, { status: value });
     await refreshClients();
   }
-
 
   // Pagination controls
   const totalPages = Math.ceil(total / pageSize);
@@ -205,9 +218,10 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
                 onChange={(e) => setStatus(e.target.value)}
                 className="pl-8 pr-8 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-sm text-white focus:outline-none focus:border-emerald-500/50 appearance-none cursor-pointer"
               >
-                {STATUS.map((s) => (
-                  <option key={s.value} value={s.value} className="bg-zinc-900 text-white">
-                    {s.label}
+                <option value="" className="bg-zinc-900 text-white">Todos os status</option>
+                {statusList.map((s, idx) => (
+                  <option key={s.id ?? idx} value={s.id} className="bg-zinc-900 text-white">
+                    {s.name ?? s.nome ?? "Sem nome"}
                   </option>
                 ))}
               </select>
@@ -227,7 +241,6 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
         </div>
       </header>
 
-
       {/* Content */}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         <ClientTable
@@ -241,6 +254,7 @@ export default function AllLeadsPage({ onRefreshStates, uf: propUf }) {
           onStatusChange={onStatusChange}
           onSellerChange={onSellerChange}
           sellers={sellers}
+          statusList={statusList}
           onDelete={onDelete}
         />
 

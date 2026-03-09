@@ -3,10 +3,15 @@ import pg from "pg";
 import dotenv from "dotenv";
 dotenv.config();
 
-const client = new pg.Client({
+const { Pool } = pg;
+
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
-await client.connect();
 
-export { client };
+pool.on("error", (err) => {
+  console.error("Erro inesperado no pool do PostgreSQL:", err);
+});
+
+export default pool;

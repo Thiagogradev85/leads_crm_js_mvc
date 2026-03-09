@@ -1,3 +1,4 @@
+// router.get("/status", ClientController.listStatus); // movido para depois da declaração do router
 import express from "express";
 import multer from "multer";
 import path from "node:path";
@@ -12,6 +13,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+// Endpoint de status (deve vir após a declaração do router)
+router.get("/status", ClientController.listStatus);
 // ─── Sellers ───
 router.get("/sellers", SellerController.list);
 router.get("/sellers/:id", SellerController.get);

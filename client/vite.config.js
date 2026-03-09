@@ -13,6 +13,7 @@ export default defineConfig({
       "/import": "http://localhost:8000",
       "/catalogs": "http://localhost:8000",
       "/sellers": "http://localhost:8000",
+      "/status": "http://localhost:8000",
     },
   },
   build: {

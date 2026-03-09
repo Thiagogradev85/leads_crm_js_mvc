@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Store, MapPin, MessageCircle, Mail, Trash2, Star, ExternalLink, Hash, RefreshCw, Eye,
-  ArrowUp, ArrowDown, ArrowUpDown,
+  ArrowUp, ArrowDown, ArrowUpDown, Plus
 } from "lucide-react";
 import { tempIcon } from "../lib/constants";
 import StatusBadge from "./StatusBadge";
@@ -15,32 +15,42 @@ function SortIcon({ column, sortKey, sortDir }) {
     : <ArrowDown size={12} className="text-emerald-400" />;
 }
 
-export default function ClientTable({ clients, loading, uf, showUf, sortKey, sortDir, onSort, onStatusChange, onSellerChange, sellers = [], onDelete }) {
+export default function ClientTable({ clients, loading, uf, showUf, sortKey, sortDir, onSort, onStatusChange, onSellerChange, sellers = [], statusList = [], onDelete, onEdit }) {
+  // Normaliza statusList para garantir que sempre é array
+  const normalizedStatusList = Array.isArray(statusList) ? statusList : [];
   const navigate = useNavigate();
 
   console.log("sellers no ClientTable:", sellers);
+  console.log("statusList no ClientTable (normalizado):", normalizedStatusList);
 
   return (
     <section className="rounded-2xl border border-zinc-800/80 bg-zinc-900/20 backdrop-blur-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-zinc-800/60 flex items-center justify-between">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800/60">
         <div className="flex items-center gap-2 text-sm">
           <Hash size={14} className="text-zinc-500" />
           <span className="text-zinc-400">{clients.length} registros</span>
           {loading && <RefreshCw size={14} className="text-emerald-400 animate-spin ml-2" />}
         </div>
+        <button
+          onClick={() => navigate("/client/new")}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+        >
+          <Plus size={16} />
+          Novo Cliente
+        </button>
       </div>
-      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
-        <table className="min-w-[1100px] w-full text-sm">
+      <div className="overflow-x-auto scrollbar-thumb-zinc-700 scrollbar-track-zinc-900 scrollbar scrollbar-h-4" style={{ maxHeight: '70vh', minHeight: '350px', position: 'relative' }}>
+        <table className="min-w-[1400px] w-full text-base">
           <thead>
-            <tr className="border-b border-zinc-800/60 text-sm uppercase tracking-wider text-zinc-400">
-              <th className="px-4 py-3 text-left font-semibold">
+            <tr className="border-b border-zinc-800/60 text-base uppercase tracking-wider text-zinc-300">
+              <th className="px-4 py-4 text-left font-semibold">
                 {onSort ? (
                   <button onClick={() => onSort("loja")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
                     Loja <SortIcon column="loja" sortKey={sortKey} sortDir={sortDir} />
                   </button>
                 ) : "Loja"}
               </th>
-              <th className="px-4 py-3 text-left font-semibold">
+              <th className="px-4 py-4 text-left font-semibold">
                 {onSort ? (
                   <button onClick={() => onSort("cidade")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
                     Cidade <SortIcon column="cidade" sortKey={sortKey} sortDir={sortDir} />
@@ -48,7 +58,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                 ) : "Cidade"}
               </th>
               {showUf && (
-                <th className="px-4 py-3 text-left font-semibold">
+                <th className="px-4 py-4 text-left font-semibold">
                   {onSort ? (
                     <button onClick={() => onSort("uf")} className="flex items-center gap-1.5 hover:text-emerald-300 transition-colors">
                       UF <SortIcon column="uf" sortKey={sortKey} sortDir={sortDir} />
@@ -56,11 +66,11 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                   ) : "UF"}
                 </th>
               )}
-              <th className="px-4 py-3 text-left font-semibold w-[180px]">WhatsApp</th>
-              <th className="px-4 py-3 text-left font-semibold w-[120px]">Email</th>
-              <th className="px-4 py-3 text-left font-semibold">Vendedor</th>
-              <th className="px-4 py-3 text-left font-semibold">Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Ações</th>
+              <th className="px-4 py-4 text-left font-semibold w-[220px]">WhatsApp</th>
+              <th className="px-4 py-4 text-left font-semibold w-[160px]">Email</th>
+              <th className="px-4 py-4 text-left font-semibold">Vendedor</th>
+              <th className="px-4 py-4 text-left font-semibold">Status</th>
+              <th className="px-4 py-4 text-left font-semibold">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800/40">
@@ -70,7 +80,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                 className="hover:bg-zinc-800/20 transition-colors group cursor-pointer"
                 onClick={() => navigate(`/client/${c.id}`)}
               >
-                <td className="px-4 py-3">
+                <td className="px-4 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center flex-shrink-0">
                       <Store size={14} className="text-zinc-400" />
@@ -101,20 +111,20 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-4">
                   <div className="flex items-center gap-1.5 text-zinc-300">
                     <MapPin size={13} className="text-zinc-600" />
                     {c.cidade || <span className="text-zinc-600">—</span>}
                   </div>
                 </td>
                 {showUf && (
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     <span className="px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 text-xs font-medium">
                       {c.uf}
                     </span>
                   </td>
                 )}
-                <td className="px-4 py-3 w-[180px]" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4 w-[220px]" onClick={(e) => e.stopPropagation()}>
                   {c.whatsapp ? (
                     <a
                       className="flex items-center gap-1.5 text-emerald-300 hover:text-emerald-200 transition-colors"
@@ -134,7 +144,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 w-[120px]" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4 w-[160px]" onClick={(e) => e.stopPropagation()}>
                   {c.email ? (
                     <a
                       href={`mailto:${c.email}`}
@@ -149,7 +159,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
                   <select
                     className="bg-zinc-900 border border-zinc-700 text-xs text-zinc-300 rounded px-2 py-1 min-w-[100px]"
                     value={c.vendedor_id || ''}
@@ -160,15 +170,12 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                       <option key={s.id} value={s.id}>{s.nome}</option>
                     ))}
                   </select>
-                  <span className="ml-2 text-xs text-zinc-400">
-                    {/* Mostra o nome do vendedor selecionado, se houver */}
-                    {sellers.find(s => String(s.id) === String(c.vendedor_id))?.nome || c.vendedor_nome || ''}
-                  </span>
+                  {/* Removido nome duplicado do vendedor ao lado do dropdown */}
                 </td>
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  <StatusBadge status={c.status} onChange={(val) => onStatusChange(c.id, val)} />
+                <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                  <StatusBadge status={c.status} statusId={c.status_id} statusList={normalizedStatusList} onChange={(val) => onStatusChange(c.id, val)} />
                 </td>
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => navigate(`/client/${c.id}`)}
@@ -176,6 +183,12 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
                     >
                       <Eye size={13} />
                       <span>Ver</span>
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate(`/client/${c.id}`); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-blue-400 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all opacity-50 group-hover:opacity-100"
+                    >
+                      <span>Editar</span>
                     </button>
                     <button
                       onClick={() => onDelete(c.id)}
@@ -190,7 +203,7 @@ export default function ClientTable({ clients, loading, uf, showUf, sortKey, sor
             ))}
             {!clients.length && (
               <tr>
-                <td className="px-4 py-12 text-center" colSpan={showUf ? 7 : 6}>
+                <td className="px-4 py-12 text-center text-base" colSpan={showUf ? 7 : 6}>
                   <EmptyState
                     title={`Nenhum lead encontrado para ${uf}`}
                     subtitle="Importe um Excel ou adicione manualmente"
